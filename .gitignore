@@ -1,0 +1,7 @@
+venv
+data
+configs
+.idea
+*~
+*.zip
+*.pyc
