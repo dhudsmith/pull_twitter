@@ -1,11 +1,10 @@
 # Setup
-
-First, clone this repository. In a terminal, navigate to the desired directory and run
+In a terminal, navigate to the desired directory and run the following command to clone the repository
 ```bash
 git clone https://github.com/dhudsmith/twitter_timeline.git
 ```
 
-Next, navigate into the `twitter_timeline` directory and create the 
+Next, navigate into the `twitter_timeline` directory and create the python
 virtual environment
 ```bash
 # Note: can alternatively use python3.6 or python3.7
@@ -28,7 +27,7 @@ python -m pip install -r requirements.txt
 
 Activate the virtual environment if it is not already active `source venv/bin/activate`
 
-First fill in the contents of `configs/template_config.yaml` by following the comments.
+Fill in the contents of `configs/template_config.yaml` by following the comments.
 This file contains all input arguments that the script depends on. The application supports
 skipping specified handles by placing the value '1' in the "skip" column of the handles csv
 file. See the example csv file: `data/celeb_handle_test.csv`. 
