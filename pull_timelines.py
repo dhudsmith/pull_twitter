@@ -26,7 +26,7 @@ def main(config_path: str):
     df_handles = pd.read_csv(config.local.handles_csv)
     if config.local.use_skip:
         df_handles = df_handles.loc[df_handles[config.local.skip_column] != 1]
-    handles = list(df_handles[config.local.handle_column])[:10]
+    handles = list(df_handles[config.local.handle_column])
 
     # set up the timeline
     timeline = Timeline(client, config.twitter.query_params)
