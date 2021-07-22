@@ -2,7 +2,7 @@ import os
 
 from pydantic import BaseModel, SecretStr, FilePath, DirectoryPath
 
-from twitter_schema import LookupQueryParams
+from utils.twitter_schema import LookupQueryParams
 
 
 # twitter
@@ -17,9 +17,11 @@ class TwitterConfig(BaseModel):
 
 
 class LocalConfig(BaseModel):
-    input_csv: FilePath
-    handle_column: str = "handle"
+    handles_csv: FilePath
     output_dir: DirectoryPath
+    handle_column: str = "handle"
+    skip_column: str = "skip"
+    use_skip: bool = True
 
 
 # Full Config Model for timeline app

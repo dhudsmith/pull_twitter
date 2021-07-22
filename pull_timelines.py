@@ -1,5 +1,3 @@
-# TODO: in the case of disconnections, log appropriate metrics needed to retrieve lost data
-# TODO: use background thread for reading lines
 """
 This script handles the polling of reaction count data using the tweets api. API reference:
 https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
@@ -8,8 +6,8 @@ import os
 from tweepy.client import Client
 import yaml
 import pprint
-from config_schema import TimelineConfig
-from timeline import Timeline
+from utils.config_schema import TimelineConfig
+from utils.timeline import Timeline
 import pandas as pd
 
 
@@ -25,13 +23,21 @@ def main(config_path: str):
     client = Client(bearer_token=os.environ['TW_BEARER_TOKEN'], wait_on_rate_limit=True)
 
     # get handles
-    handles = list(pd.read_csv(config.local.input_csv)[config.local.handle_column])
+    df_handles = pd.read_csv(config.local.handles_csv)
+    if config.local.use_skip:
+        df_handles = df_handles.loc[df_handles[config.local.skip_column] != 1]
+    handles = list(df_handles[config.local.handle_column])[:10]
 
-    # # set up the timeline
-    timeline = Timeline(client, handles, config.twitter.query_params)
+    # set up the timeline
+    timeline = Timeline(client, config.twitter.query_params)
 
-    # Run the polling routine
-    timeline.pull(output_dir=str(config.local.output_dir))
+    # Pull the tweets
+    for ix, handle in enumerate(handles):
+        print(f"Processing handle {ix+1}/{len(handles)}")
+        try:
+            timeline.pull(handle, output_dir=str(config.local.output_dir))
+        except Exception as e:
+            print(f"Failed to pull timeline for {handle}. Error: ", e)
 
 
 if __name__ == "__main__":

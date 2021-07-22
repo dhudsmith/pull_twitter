@@ -1,0 +1,30 @@
+local:
+  handles_csv: '<full path to handles csv file>'
+  output_dir: '<full path to output directory for timeline tweets>'
+  handle_column: handle # name of column containing handles
+  skip_column: skip # name of column containing skip indicators (1's indicating handles to be skipped)
+  use_skip: false # indicate if you would like to use the skip column to filter handles
+twitter:
+  account:
+    bearer_token: '<your twitter api bearer token>'
+    tweets_per_query: 100 # 100 is the maximum allowed
+  # Can ignore these unless you would like to change the information retreived from twitter.
+  # See https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
+  query_params:
+#    expansions:
+#    media_fields:
+#    place_fields:
+#    poll_fields:
+    tweet_fields:
+      - author_id
+      - conversation_id
+      - created_at
+      - in_reply_to_user_id
+      - lang
+      - public_metrics
+      - possibly_sensitive
+      - referenced_tweets
+      - reply_settings
+      - source
+      - text
+      - withheld
