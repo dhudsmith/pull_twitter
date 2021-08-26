@@ -35,7 +35,9 @@ def main(config_path: str):
     for ix, handle in enumerate(handles):
         print(f"Processing handle {ix+1}/{len(handles)}")
         try:
-            timeline.pull(handle, output_dir=str(config.local.output_dir))
+            timeline.pull(handle, output_dir=str(config.local.output_dir), 
+                output_handle = config.local.output_handle, 
+                handle_col=config.local.handle_column)
         except Exception as e:
             print(f"Failed to pull timeline for {handle}. Error: ", e)
 

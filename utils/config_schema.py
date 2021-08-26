@@ -20,6 +20,7 @@ class LocalConfig(BaseModel):
     handles_csv: FilePath
     output_dir: DirectoryPath
     handle_column: str = "handle"
+    output_handle: bool = True
     skip_column: str = "skip"
     use_skip: bool = True
 

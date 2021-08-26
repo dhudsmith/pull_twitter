@@ -1,7 +1,8 @@
 local:
   handles_csv: '<full path to handles csv file>'
   output_dir: '<full path to output directory for timeline tweets>'
-  handle_column: handle # name of column containing handles
+  handle_column: handle # name of column containing handles in handles_csv, as well as in timeline results
+  output_handle: false # indicate if you would like to include handles in the timeline results
   skip_column: skip # name of column containing skip indicators (1's indicating handles to be skipped)
   use_skip: false # indicate if you would like to use the skip column to filter handles
 twitter:

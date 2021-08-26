@@ -28,7 +28,7 @@ class Timeline:
         self.client: Client = tweepy_client
         self.query_params = query_params
 
-    def pull(self, handle:str, output_dir: str):
+    def pull(self, handle:str, output_dir: str, output_handle: bool = False, handle_col: str = "handle"):
         """
         Lookup the tweets to get updated reaction counts.
 
@@ -76,6 +76,8 @@ class Timeline:
                 tweets = [twalc.Tweet(**tw).to_dict() for tw in tweets]
 
                 df_tweets = pd.DataFrame(tweets)
+                if output_handle:
+                    df_tweets[handle_col] = handle
                 df_tweets.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL, mode='a',
                                  header=False if os.path.isfile(save_path) else True)
                 num_collected += len(tweets)
