@@ -25,8 +25,8 @@ class LocalConfig(BaseModel):
     use_skip: bool = True
 
 
-# Full Config Model for timeline app
-class TimelineConfig(BaseModel):
+# Full Config Model for app
+class TwitterPullConfig(BaseModel):
     local: LocalConfig
     twitter: TwitterConfig
 

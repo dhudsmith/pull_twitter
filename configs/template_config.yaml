@@ -11,6 +11,7 @@ twitter:
     tweets_per_query: 100 # 100 is the maximum allowed
   # Can ignore these unless you would like to change the information retreived from twitter.
   # See https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
+  #   and https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users
   query_params:
 #    expansions:
 #    media_fields:
@@ -29,3 +30,10 @@ twitter:
       - source
       - text
       - withheld
+    user_fields:
+      - created_at
+      - description
+      - id
+      - name
+      - public_metrics
+      - username
