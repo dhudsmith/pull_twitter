@@ -1,17 +1,17 @@
 """
-This script handles the polling of reaction count data using the tweets api. API reference:
-https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
+This script handles the polling of user data using the tweets api. API reference:
+https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-by
 """
 import os
 from tweepy.client import Client
 import yaml
 import pprint
 from utils.config_schema import TwitterPullConfig
-from utils.timeline import Timeline
+from utils.user import User
 import pandas as pd
 
 
-def pull_timelines(config_path: str):
+def pull_users(config_path: str):
     # load the configuration
     with open(config_path, 'r') as f:
         config_yml = yaml.load(f, Loader=yaml.FullLoader)
@@ -29,14 +29,9 @@ def pull_timelines(config_path: str):
     handles = list(df_handles[config.local.handle_column])
 
     # set up the timeline
-    timeline = Timeline(client, config.twitter.query_params)
+    user = User(client, config.twitter.query_params)
 
-    # Pull the tweets
-    for ix, handle in enumerate(handles):
-        print(f"Processing handle {ix+1}/{len(handles)}")
-        try:
-            timeline.pull(handle, output_dir=str(config.local.output_dir), 
-                output_handle = config.local.output_handle, 
-                handle_col=config.local.handle_column)
-        except Exception as e:
-            print(f"Failed to pull timeline for {handle}. Error: ", e)
+    try:
+        user.pull(handles, output_dir=str(config.local.output_dir))
+    except Exception as e:
+        print(f"Failed to pull user data. Error: ", e)
