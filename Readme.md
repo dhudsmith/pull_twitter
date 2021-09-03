@@ -32,22 +32,26 @@ This file contains all input arguments that the script depends on. The applicati
 skipping specified handles by placing the value '1' in the "skip" column of the handles csv
 file. See the example csv file: `data/celeb_handle_test.csv`. 
 
-## Fetch User Tweets
-
 From within the `twitter_timeline` folder, run the command (substituting the contents within <>)
 ```bash
-python pull_timelines.py --config_file <path to config yaml file> timeline
+python pull_twitter.py --config_file <path to config yaml file> <subcommand>
 ```
-This will write data to the output directory specified in the config file. A separate 
+
+Available subcommands are detailed below
+## Fetch User Tweets
+
+Using the subcommand `timeline` will write data to the output directory specified in the config file. A separate 
 sub-folder is created for each non-skipped handle.
 
 ## Fetch User Data
 
-From within the `twitter_timeline` folder, run the command (substituting the contents within <>)
-```bash
-python pull_timelines.py --config_file <path to config yaml file> users
-```
-This will write data to the output directory specified in the config file. A subfolder called "users" will hold all information associated with each handle.
+Using the subcommand `users` will write data to the output directory specified in the config file. A subfolder called 
+"users" will hold all information associated with each handle.
+
+## Querying Tweets
+
+Using the subcommand `query` will write data to the output directory specific in the config file.  A subfolder called
+"queries" will hold all tweets returned by each query.
 
 # Issues or suggested features
-Please post any suggestions as a new issue on github or reach out to me directly. 
+Please post any suggestions as a new issue on github or reach out to me directly.  

@@ -23,6 +23,10 @@ class LocalConfig(BaseModel):
     output_handle: bool = True
     skip_column: str = "skip"
     use_skip: bool = True
+    query: str
+    max_query_response: int = 500
+    start_time: str = ''
+    end_time: str = ''
 
 
 # Full Config Model for app
