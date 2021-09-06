@@ -29,7 +29,7 @@ class TweetQuery:
 
 	def pull(self, query:str, output_dir: str, 
 				start_time: Union[datetime, str] = None, end_time: Union[datetime, str] = None,
-				max_results: int = 100): # add start and end times
+				max_results: int = 100, batch_size: int = 100): # add start and end times
 		"""
 		Query tweets based on query string
 
@@ -39,8 +39,6 @@ class TweetQuery:
 			start_time: tweets will be searched beginning at this time
 			end_time: tweets will be searched at or before this time
 		"""
-
-		batch_size = 100
 
 		print(f"Pulling tweet results using '{query}' search query.")
 
