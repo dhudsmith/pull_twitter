@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 from typing import Union, List, Dict
 import csv
+import time
 
 import pandas as pd
 import tweepy.errors
@@ -65,7 +66,7 @@ class TweetQuery:
 		next_token = None
 		num_collected = 0
 		for batch in batches:
-
+			start_time_req = time.time()
 			# Get tweet data from twitter api
 			try:
 				response = self.query_tweets(query, start_time = start_time, end_time = end_time, max_results = batch, next_token=next_token)
@@ -94,6 +95,10 @@ class TweetQuery:
 			if next_token is None:
 				print('\n' + '-'*30)
 				break
+
+			# Avoiding 1 request/sec rate limit
+			end_time_req = time.time()
+			time.sleep(1.0 - (end_time_req-start_time_req))
 
 
 	def query_tweets(self, query: str, 

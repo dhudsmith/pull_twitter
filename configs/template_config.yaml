@@ -7,6 +7,7 @@ local:
   use_skip: false # indicate if you would like to use the skip column to filter handles
   # Tweet query config
   query: '<query string>' # Query string used to search for tweets in the query subcommand
+  max_query_response: 100
   start_time: '' # Earliest time of query results, must be in format YYYY-MM-DDTHH:mm:ssZ (ex. 2016-06-23T09:07:21-07:00, Z=timezone)
   end_time: '' # Latest time of query results. See above format. Query searches most recent/starting from end_time. Default is now-30s
 twitter:
