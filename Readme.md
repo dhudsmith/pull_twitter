@@ -1,14 +1,10 @@
 # Setup
-In a terminal, navigate to the desired directory and run the following command to clone the repository
-```bash
-git clone https://github.com/dhudsmith/twitter_timeline.git
-```
+Clone the repository and navigate to the repo directory. 
 
-Next, navigate into the `twitter_timeline` directory and create the python
-virtual environment
+Create the python virtual environment
 ```bash
 # Note: can alternatively use python3.6 or python3.7
-virtualenv venv -p python3.8 
+virtualenv venv -p python3.8
 ```
 
 After this completes, activate the environment
