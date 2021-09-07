@@ -66,7 +66,7 @@ class TweetQuery:
 		next_token = None
 		num_collected = 0
 		for batch in batches:
-			start_time_req = time.time()
+			
 			# Get tweet data from twitter api
 			try:
 				response = self.query_tweets(query, start_time = start_time, end_time = end_time, max_results = batch, next_token=next_token)
@@ -77,6 +77,8 @@ class TweetQuery:
 				print(f"Max retries exceeded when calling the tweets api. Continuing but may lead to loss of "
 							f"count data. Exception message: {e}")
 				continue
+
+			start_time_req = time.time()
 
 			# insert tweets into file
 			tweets: List[dict] = response.data
@@ -98,7 +100,7 @@ class TweetQuery:
 
 			# Avoiding 1 request/sec rate limit
 			end_time_req = time.time()
-			time.sleep(1.0 - (end_time_req-start_time_req))
+			time.sleep(max(0, 1.0 - (end_time_req-start_time_req)))
 
 
 	def query_tweets(self, query: str, 
