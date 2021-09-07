@@ -1,5 +1,5 @@
 # Setup
-Clone the repository and navigate to the repo directory. 
+Clone the repository and navigate into the repository directory. 
 
 Create the python virtual environment
 ```bash
@@ -28,7 +28,7 @@ This file contains all input arguments that the script depends on. The applicati
 skipping specified handles by placing the value '1' in the "skip" column of the handles csv
 file. See the example csv file: `data/celeb_handle_test.csv`. 
 
-From within the `twitter_timeline` folder, run the command (substituting the contents within <>)
+From within the repository folder, run the command (substituting the contents within <>)
 ```bash
 python pull_twitter.py --config_file <path to config yaml file> <subcommand>
 ```
