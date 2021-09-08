@@ -4,23 +4,13 @@ https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/ge
 """
 import os
 from tweepy.client import Client
-import yaml
 import pprint
 from utils.config_schema import TwitterPullConfig
 from utils.timeline import Timeline
 import pandas as pd
 
 
-def pull_timelines(config_path: str):
-    # load the configuration
-    with open(config_path, 'r') as f:
-        config_yml = yaml.load(f, Loader=yaml.FullLoader)
-    config = TwitterPullConfig(**config_yml)
-    config.set_environment_vars()
-    print(f"Successfully validated configs in {config_path}. Config: \n {pprint.pformat(config.dict())}")
-
-    # tweepy client
-    client = Client(bearer_token=os.environ['TW_BEARER_TOKEN'], wait_on_rate_limit=True)
+def pull_timelines(config: TwitterPullConfig, client: Client):
 
     # get handles
     df_handles = pd.read_csv(config.local.handles_csv)

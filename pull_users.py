@@ -11,16 +11,7 @@ from utils.user import User
 import pandas as pd
 
 
-def pull_users(config_path: str):
-    # load the configuration
-    with open(config_path, 'r') as f:
-        config_yml = yaml.load(f, Loader=yaml.FullLoader)
-    config = TwitterPullConfig(**config_yml)
-    config.set_environment_vars()
-    print(f"Successfully validated configs in {config_path}. Config: \n {pprint.pformat(config.dict())}")
-
-    # tweepy client
-    client = Client(bearer_token=os.environ['TW_BEARER_TOKEN'], wait_on_rate_limit=True)
+def pull_users(config: TwitterPullConfig, client: Client):
 
     # get handles
     df_handles = pd.read_csv(config.local.handles_csv)

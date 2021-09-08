@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 from typing import Union, List, Dict
 import csv
+import time
 
 import pandas as pd
 import tweepy.errors
@@ -29,7 +30,7 @@ class TweetQuery:
 
 	def pull(self, query:str, output_dir: str, 
 				start_time: Union[datetime, str] = None, end_time: Union[datetime, str] = None,
-				max_results: int = 100): # add start and end times
+				max_results: int = 100, batch_size: int = 100): # add start and end times
 		"""
 		Query tweets based on query string
 
@@ -39,8 +40,6 @@ class TweetQuery:
 			start_time: tweets will be searched beginning at this time
 			end_time: tweets will be searched at or before this time
 		"""
-
-		batch_size = 100
 
 		print(f"Pulling tweet results using '{query}' search query.")
 
@@ -67,7 +66,7 @@ class TweetQuery:
 		next_token = None
 		num_collected = 0
 		for batch in batches:
-
+			
 			# Get tweet data from twitter api
 			try:
 				response = self.query_tweets(query, start_time = start_time, end_time = end_time, max_results = batch, next_token=next_token)
@@ -78,6 +77,8 @@ class TweetQuery:
 				print(f"Max retries exceeded when calling the tweets api. Continuing but may lead to loss of "
 							f"count data. Exception message: {e}")
 				continue
+
+			start_time_req = time.time()
 
 			# insert tweets into file
 			tweets: List[dict] = response.data
@@ -96,6 +97,10 @@ class TweetQuery:
 			if next_token is None:
 				print('\n' + '-'*30)
 				break
+
+			# Avoiding 1 request/sec rate limit
+			end_time_req = time.time()
+			time.sleep(max(0, 1.0 - (end_time_req-start_time_req)))
 
 
 	def query_tweets(self, query: str, 
