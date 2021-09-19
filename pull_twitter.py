@@ -8,7 +8,7 @@ from tweepy.client import Client
 # Subcommand imports
 from pull_timelines import pull_timelines
 from pull_users import pull_users
-from pull_query import pull_query
+from pull_search import pull_search
 
 if __name__ == "__main__":
 
@@ -26,8 +26,8 @@ if __name__ == "__main__":
     parser_users.set_defaults(func=pull_users)
 
     # Query subcommand
-    parser_query    = subparsers.add_parser("query", aliases=["qu"], help = 'Pull tweets based on a given query')
-    parser_query.set_defaults(func=pull_query)
+    parser_search    = subparsers.add_parser("search", aliases=["s"], help = 'Pull tweets based on a given query')
+    parser_search.set_defaults(func=pull_search)
 
 
     # Extract the command line arguments
