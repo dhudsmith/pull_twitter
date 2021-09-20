@@ -38,8 +38,8 @@ if __name__ == "__main__":
     parser_search    = subparsers.add_parser("search", aliases=["s"], help = 'Pull tweets based on a given query')
     parser_search.add_argument("-q", "--query", type=str, help="Query term(s) for searching tweets", required = True)
     parser_search.add_argument("-mr", "--max-response", type=int, help="Maximum number of tweets to return using query", required = False)
-    parser_search.add_argument("-st", "--start-time", type=str, help="Starting date to search tweets", required = False)
-    parser_search.add_argument("-et", "--end-time", type=str, help="Ending date to search tweets", required = False)
+    parser_search.add_argument("-st", "--start-time", type=str, help="Starting date to search tweets (in format YYYY-MM-DD or isoformat)", required = False)
+    parser_search.add_argument("-et", "--end-time", type=str, help="Ending date to search tweets(in format YYYY-MM-DD or isoformat)", required = False)
     parser_search.set_defaults(func=pull_search)
 
 

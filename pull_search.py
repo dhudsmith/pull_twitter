@@ -9,6 +9,7 @@ import pprint
 from utils.config_schema import TwitterPullConfig
 from utils.tweet_search import TweetSearch
 import pandas as pd
+from datetime import datetime
 
 def pull_search(config: TwitterPullConfig, client: Client, query: str,
     max_response: int = 100,
@@ -17,6 +18,12 @@ def pull_search(config: TwitterPullConfig, client: Client, query: str,
 
     # set up the timeline
     tweet_search = TweetSearch(client, config.twitter.query_params)
+
+    #Parse times into datetime objects
+    if start_time:
+        start_time = datetime.fromisoformat(start_time)
+    if end_time:
+        end_time = datetime.fromisoformat(end_time)
 
     try:
         tweet_search.pull(query, output_dir=str(config.local.output_dir),
