@@ -39,13 +39,14 @@ class TweetSearch:
 			output_dir: parent directory of all twitter_pull results
 			start_time: tweets will be searched beginning at this time
 			end_time: tweets will be searched at or before this time
+			max_results: total number of tweets to return for query
 		"""
 
 		print(f"Pulling tweet results using '{query}' search query.")
 
 		# setup save directory
 		save_dir = f"{output_dir}/searches"
-		timestamp = datetime.now().strftime('%Y-%m-%d %H.%M.%S')
+		timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 		if not os.path.isdir(save_dir):
 			os.mkdir(save_dir)
 		save_path = f"{save_dir}/{timestamp}.csv"

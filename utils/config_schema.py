@@ -17,16 +17,16 @@ class TwitterConfig(BaseModel):
 
 
 class LocalConfig(BaseModel):
-    handles_csv: FilePath
+    # handles_csv: FilePath
     output_dir: DirectoryPath
-    handle_column: str = "handle"
-    output_handle: bool = True
-    skip_column: str = "skip"
-    use_skip: bool = True
-    query: str
-    max_query_response: int = 500
-    start_time: str = ''
-    end_time: str = ''
+    # handle_column: str = "handle"
+    # output_handle: bool = True
+    # skip_column: str = "skip"
+    # use_skip: bool = True
+    # query: str
+    # max_query_response: int = 500
+    # start_time: str = ''
+    # end_time: str = ''
 
 
 # Full Config Model for app
