@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     # Timeline subcommand
     parser_timeline = subparsers.add_parser("timeline", aliases=["tl"], help = "Pull tweets from users' timelines" )
-    parser_timeline.add_argument("-hi", "--handles-csv", type=str, help="CSV containg handles of users to pull timelines for", required = True)
+    parser_timeline.add_argument("-hi", "--handles-csv", type=str, help="CSV containing handles of users to pull timelines for", required = True)
     parser_timeline.add_argument("-oh", "--output-handle", type=bool, help="Indicates whether to include handles in timeline outputs", required = False)
     parser_timeline.add_argument("-hc", "--handle-column", type=str, help="Name of handles column in handles-csv", required = False)
     parser_timeline.add_argument("-sc", "--skip-column", type=str, help="Name of column containing skip indicators in handles-csv", required = False)
