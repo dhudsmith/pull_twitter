@@ -45,11 +45,7 @@ class TweetSearch:
 		print(f"Pulling tweet results using '{query}' search query.")
 
 		# setup save directory
-		save_dir = f"{output_dir}/searches"
-		timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-		if not os.path.isdir(save_dir):
-			os.mkdir(save_dir)
-		save_path = f"{save_dir}/{timestamp}.csv"
+		save_path = f"{output_dir}/data.csv"
 		print(f"Saving tweets to {save_path}")
 
 		num_batches = (max_results//batch_size) + 1

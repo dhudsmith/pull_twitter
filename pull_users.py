@@ -12,6 +12,7 @@ import pandas as pd
 
 
 def pull_users(config: TwitterPullConfig, client: Client, handles_csv: str,
+    output_dir: str = None,
     handle_column: str = "handle", 
     skip_column: str = "skip",
     use_skip: bool = False):
@@ -25,7 +26,9 @@ def pull_users(config: TwitterPullConfig, client: Client, handles_csv: str,
     # set up the timeline
     user = User(client, config.twitter.query_params)
 
+    output_dir = str(config.local.output_dir) if not output_dir else output_dir
+
     try:
-        user.pull(handles, output_dir=str(config.local.output_dir))
+        user.pull(handles, output_dir=output_dir)
     except Exception as e:
         print(f"Failed to pull user data. Error: ", e)

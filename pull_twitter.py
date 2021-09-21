@@ -2,6 +2,9 @@ import argparse
 import yaml
 import pprint
 import os
+import sys
+from shutil import copyfile
+from datetime import datetime
 from utils.config_schema import TwitterPullConfig
 from tweepy.client import Client
 
@@ -24,6 +27,7 @@ if __name__ == "__main__":
     parser_timeline.add_argument("-hc", "--handle-column", type=str, help="Name of handles column in handles-csv", required = False)
     parser_timeline.add_argument("-sc", "--skip-column", type=str, help="Name of column containing skip indicators in handles-csv", required = False)
     parser_timeline.add_argument("-usc", "--use-skip", type=bool, help="Indicates whether to use the skip column to ignore specific handles", required = False)
+    parser_timeline.set_defaults(name="timeline")
     parser_timeline.set_defaults(func=pull_timelines)
 
     # Users subcommand
@@ -32,6 +36,7 @@ if __name__ == "__main__":
     parser_users.add_argument("-hc", "--handle-column", type=str, help="Name of handles column in handles-csv", required = False)
     parser_users.add_argument("-sc", "--skip-column", type=str, help="Name of column containing skip indicators in handles-csv", required = False)
     parser_users.add_argument("-usc", "--use-skip", type=bool, help="Indicates whether to use the skip column to ignore specific handles", required = False)
+    parser_users.set_defaults(name="users")
     parser_users.set_defaults(func=pull_users)
 
     # Query subcommand
@@ -40,6 +45,7 @@ if __name__ == "__main__":
     parser_search.add_argument("-mr", "--max-response", type=int, help="Maximum number of tweets to return using query", required = False)
     parser_search.add_argument("-st", "--start-time", type=str, help="Starting date to search tweets (in format YYYY-MM-DD or isoformat)", required = False)
     parser_search.add_argument("-et", "--end-time", type=str, help="Ending date to search tweets(in format YYYY-MM-DD or isoformat)", required = False)
+    parser_search.set_defaults(name="search")
     parser_search.set_defaults(func=pull_search)
 
 
@@ -59,9 +65,28 @@ if __name__ == "__main__":
     # tweepy client
     client = Client(bearer_token=os.environ['TW_BEARER_TOKEN'], wait_on_rate_limit=True)
 
-    print(args)
-    ignore_args = ['config_file', 'func']
+    # Create output directories
+    dt_fmt = '%Y-%m-%d %H:%M:%S' if os.name == 'posix' else '%Y-%m-%d %H.%M.%S'
+    timestamp = datetime.now().strftime(dt_fmt)
+    subcommand_dir = f"{str(config.local.output_dir)}/{args['name']}"
+    output_time_dir = f"{subcommand_dir}/{timestamp}"
+    if not os.path.isdir(subcommand_dir):
+            os.mkdir(subcommand_dir)
+
+    data_dir, metadata_dir = f"{output_time_dir}/data", f"{output_time_dir}/metadata"
+    os.makedirs(output_time_dir)
+    os.mkdir(data_dir)
+    os.mkdir(metadata_dir)
+
+    # Save query metadata
+    copyfile(args['config_file'], f"{metadata_dir}/config.yaml")
+    with open(f"{metadata_dir}/command.txt", "w") as command_file:
+        command_file.write(" ".join(sys.argv))
+
+    # Clean command keyword arguments
+    ignore_args = ['config_file', 'name', 'func']
     command_kwargs = {key:value for key, value in args.items() if (not key in ignore_args) and (value)}
+    command_kwargs['output_dir'] = data_dir
 
     # Run the application with parsed configuration and initialized client
     args['func'](config, client, **command_kwargs)

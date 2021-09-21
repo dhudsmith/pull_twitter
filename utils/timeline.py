@@ -49,11 +49,9 @@ class Timeline:
 
         # setup save directory
         save_dir = f"{output_dir}/{handle}"
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        if not os.path.isdir(save_dir):
-            os.mkdir(save_dir)
-        save_path = f"{save_dir}/{timestamp}.csv"
-        print(f"Saving tweets to {save_path}")
+        os.mkdir(save_dir)
+        save_path = f"{save_dir}/data.csv"
+        print(f"Saving tweets to {save_path}")        
 
         finished = False
         next_token = None
