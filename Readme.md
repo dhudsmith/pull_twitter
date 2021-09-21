@@ -48,7 +48,7 @@ Using the subcommand `timeline` will collect the tweets in each non-skipped user
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles |
 
 ### Example
-`python pull_twitter.py --config-file ./configs/config.yaml timeline -hi "./data/celeb_handle_test.csv" -ho True`
+```python pull_twitter.py --config-file ./configs/config.yaml timeline -hi "./data/celeb_handle_test.csv" -ho True```
 
 ## Fetch User Data
 
@@ -63,7 +63,7 @@ Using the subcommand `users` will collect profile information connected to each 
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles |
 
 ### Example
-`python pull_twitter.py --config-file ./configs/config.yaml users -hi "./data/celeb_handle_test.csv"`
+```python pull_twitter.py --config-file ./configs/config.yaml users -hi "./data/celeb_handle_test.csv"```
 
 ## Search Tweets
 
@@ -78,7 +78,7 @@ Using the subcommand `search` will collect tweets that match a provided query st
 | --end-time | -et | Ending date to search tweets(in format YYYY-MM-DD or isoformat) |
 
 ### Example
-`python pull_twitter.py --config-file ./configs/config.yaml search -q COVID19 -mr 50 -st 2021-08-19 -et 2021-08-21`
+```python pull_twitter.py --config-file ./configs/config.yaml search -q COVID19 -mr 50 -st 2021-08-19 -et 2021-08-21```
 
 # Issues or suggested features
 Please post any suggestions as a new issue on github or reach out to me directly.  
