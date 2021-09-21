@@ -24,30 +24,61 @@ python -m pip install -r requirements.txt
 Activate the virtual environment if it is not already active `source venv/bin/activate`
 
 Fill in the contents of `configs/template_config.yaml` by following the comments.
-This file contains all input arguments that the script depends on. The application supports
-skipping specified handles by placing the value '1' in the "skip" column of the handles csv
-file. See the example csv file: `data/celeb_handle_test.csv`. 
+This file contains all global arguments that each command depends on.
 
 From within the repository folder, run the command (substituting the contents within <>)
 ```bash
-python pull_twitter.py --config_file <path to config yaml file> <subcommand>
+python pull_twitter.py --config_file <path to config yaml file> <subcommand> <subcommand arguments>
 ```
 
-Available subcommands are detailed below
+All data will be saved to the directory indicated by output_dir in the designated config file.  Each subcommand is provided an independent subdirectory to save outputs, and all results are stored in timestamped directories within.
+
+Available subcommands and their arguments are detailed below
 ## Fetch User Tweets
 
-Using the subcommand `timeline` will write data to the output directory specified in the config file. A separate 
-sub-folder is created for each non-skipped handle.
+Using the subcommand `timeline` will collect the tweets in each non-skipped users' timeline, as indicated by the handles_csv parameter.  A separate subdirectory is created for each non-skipped handle.
+
+### Arguments
+| Full name | Shortened name | Description |
+| --------- | -------------- | ----------- |
+| --handles-csv | -hi | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) |
+| --output-handle | -oh | Indicates whether to include handles in timeline outputs |
+| --handle-column | -hc | Name of handles column in handles-csv |
+| --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) |
+| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles |
+
+### Example
+`python pull_twitter.py --config-file ./configs/config.yaml timeline -hi "./data/celeb_handle_test.csv" -ho True`
 
 ## Fetch User Data
 
-Using the subcommand `users` will write data to the output directory specified in the config file. A subfolder called 
-"users" will hold all information associated with each handle.
+Using the subcommand `users` will collect profile information connected to each non-skipped user as indicated by the handles_csv parameter.
 
-## Querying Tweets
+### Arguments
+| Full name | Shortened name | Description |
+| --------- | -------------- | ----------- |
+| --handles-csv | -hi | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) |
+| --handle-column | -hc | Name of handles column in handles-csv |
+| --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) |
+| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles |
 
-Using the subcommand `query` will write data to the output directory specific in the config file.  A subfolder called
-"queries" will hold all tweets returned by each query.
+### Example
+`python pull_twitter.py --config-file ./configs/config.yaml users -hi "./data/celeb_handle_test.csv"`
+
+## Search Tweets
+
+Using the subcommand `search` will collect tweets that match a provided query string.
+
+### Arguments
+| Full name | Shortened name | Description |
+| --------- | -------------- | ----------- |
+| --query   |       -q       | Query term(s) for searching tweets |
+| --max-response | -mr | Maximum number of tweets to return using query |
+| --start-time | -st | Starting date to search tweets (in format YYYY-MM-DD or isoformat) |
+| --end-time | -et | Ending date to search tweets(in format YYYY-MM-DD or isoformat) |
+
+### Example
+`python pull_twitter.py --config-file ./configs/config.yaml search -q COVID19 -mr 50 -st 2021-08-19 -et 2021-08-21`
 
 # Issues or suggested features
 Please post any suggestions as a new issue on github or reach out to me directly.  
