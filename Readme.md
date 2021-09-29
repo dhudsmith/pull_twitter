@@ -46,6 +46,7 @@ Using the subcommand `timeline` will collect the tweets in each non-skipped user
 | --handle-column | -hc | Name of handles column in handles-csv |
 | --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) |
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles |
+| --tweets-per-query | -tpq | Number of tweets present in each response from the Twitter API |
 
 ### Example
 ```python pull_twitter.py --config-file ./configs/config.yaml timeline -hi "./data/celeb_handle_test.csv" -oh True```
@@ -76,6 +77,8 @@ Using the subcommand `search` will collect tweets that match a provided query st
 | --max-response | -mr | Maximum number of tweets to return using query |
 | --start-time | -st | Starting date to search tweets (in format YYYY-MM-DD or isoformat) |
 | --end-time | -et | Ending date to search tweets(in format YYYY-MM-DD or isoformat) |
+| --tweets-per-query | -tpq | Number of tweets present in each response from the Twitter API |
+
 
 ### Example
 ```python pull_twitter.py --config-file ./configs/config.yaml search -q COVID19 -mr 50 -st 2021-08-19 -et 2021-08-21```
