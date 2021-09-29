@@ -15,7 +15,7 @@ import twitteralchemy as twalc
 from utils import exceptions
 from utils.twitter_schema import LookupQueryParams
 
-class TweetQuery:
+class TweetSearch:
 	"""
 	The TweetQuery class manages the connection to the twitter query API.
 	"""
@@ -39,16 +39,13 @@ class TweetQuery:
 			output_dir: parent directory of all twitter_pull results
 			start_time: tweets will be searched beginning at this time
 			end_time: tweets will be searched at or before this time
+			max_results: total number of tweets to return for query
 		"""
 
 		print(f"Pulling tweet results using '{query}' search query.")
 
 		# setup save directory
-		save_dir = f"{output_dir}/queries"
-		timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-		if not os.path.isdir(save_dir):
-			os.mkdir(save_dir)
-		save_path = f"{save_dir}/{timestamp}.csv"
+		save_path = f"{output_dir}/data.csv"
 		print(f"Saving tweets to {save_path}")
 
 		num_batches = (max_results//batch_size) + 1
@@ -69,7 +66,7 @@ class TweetQuery:
 			
 			# Get tweet data from twitter api
 			try:
-				response = self.query_tweets(query, start_time = start_time, end_time = end_time, max_results = batch, next_token=next_token)
+				response = self.search_tweets(query, start_time = start_time, end_time = end_time, max_results = batch, next_token=next_token)
 			except exceptions.EmptyTwitterResponseException as e:
 				print(f"No tweets in the response. Continuing. Exception message: {e}")
 				continue
@@ -103,7 +100,7 @@ class TweetQuery:
 			time.sleep(max(0, 1.0 - (end_time_req-start_time_req)))
 
 
-	def query_tweets(self, query: str, 
+	def search_tweets(self, query: str, 
 					start_time: Union[datetime, str] = None, 
 					end_time: Union[datetime, str] = None,
 					max_results: int = 10,

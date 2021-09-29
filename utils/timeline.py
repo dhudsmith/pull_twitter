@@ -28,7 +28,7 @@ class Timeline:
         self.client: Client = tweepy_client
         self.query_params = query_params
 
-    def pull(self, handle:str, output_dir: str, output_handle: bool = False, handle_col: str = "handle"):
+    def pull(self, handle:str, output_dir: str, output_handle: bool = False, handle_col: str = "handle", tweets_per_query: int = 100):
         """
         Lookup the tweets to get updated reaction counts.
 
@@ -49,11 +49,9 @@ class Timeline:
 
         # setup save directory
         save_dir = f"{output_dir}/{handle}"
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        if not os.path.isdir(save_dir):
-            os.mkdir(save_dir)
-        save_path = f"{save_dir}/{timestamp}.csv"
-        print(f"Saving tweets to {save_path}")
+        os.mkdir(save_dir)
+        save_path = f"{save_dir}/data.csv"
+        print(f"Saving tweets to {save_path}")        
 
         finished = False
         next_token = None
@@ -61,7 +59,7 @@ class Timeline:
         while not finished:
             # Get tweet data from twitter api
             try:
-                response = self.get_tweets(user_id, next_token=next_token)
+                response = self.get_tweets(user_id, next_token=next_token, tweets_per_query=tweets_per_query)
             except exceptions.EmptyTwitterResponseException as e:
                 print(f"No tweets in the response. Continuing. Exception message: {e}")
                 continue
@@ -92,7 +90,8 @@ class Timeline:
 
     def get_tweets(self, ids: Union[List[Union[int, str]], Union[int, str]],
                    since_id: str = None,
-                   next_token: str = None):
+                   next_token: str = None,
+                   tweets_per_query: int = 100):
 
         params: dict = self.query_params.dict(exclude_unset=True)
         # reformat all params as list type for tweepy
@@ -104,7 +103,7 @@ class Timeline:
         if since_id:
             params['since_id'] = since_id
         params['pagination_token'] = next_token
-        params['max_results'] = 100
+        params['max_results'] = tweets_per_query
 
         max_retries = 5
         retries = 0

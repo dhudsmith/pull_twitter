@@ -10,23 +10,32 @@ from utils.timeline import Timeline
 import pandas as pd
 
 
-def pull_timelines(config: TwitterPullConfig, client: Client):
+def pull_timelines(config: TwitterPullConfig, client: Client, handles_csv: str, 
+    output_dir: str = None,
+    handle_column: str = "handle", 
+    skip_column: str = "skip",
+    output_handle: bool = False, 
+    use_skip: bool = False,
+    tweets_per_query: int = 100):
 
     # get handles
-    df_handles = pd.read_csv(config.local.handles_csv)
-    if config.local.use_skip:
-        df_handles = df_handles.loc[df_handles[config.local.skip_column] != 1]
-    handles = list(df_handles[config.local.handle_column])
+    df_handles = pd.read_csv(handles_csv)
+    if use_skip:
+        df_handles = df_handles.loc[df_handles[skip_column] != 1]
+    handles = list(df_handles[handle_column])
 
     # set up the timeline
     timeline = Timeline(client, config.twitter.query_params)
+
+    output_dir = str(config.local.output_dir) if not output_dir else output_dir
 
     # Pull the tweets
     for ix, handle in enumerate(handles):
         print(f"Processing handle {ix+1}/{len(handles)}")
         try:
-            timeline.pull(handle, output_dir=str(config.local.output_dir), 
-                output_handle = config.local.output_handle, 
-                handle_col=config.local.handle_column)
+            timeline.pull(handle, output_dir=output_dir, 
+                output_handle = output_handle, 
+                handle_col = handle_column,
+                tweets_per_query = tweets_per_query)
         except Exception as e:
             print(f"Failed to pull timeline for {handle}. Error: ", e)

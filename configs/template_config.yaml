@@ -1,19 +1,8 @@
 local:
-  handles_csv: '<full path to handles csv file>'
   output_dir: '<full path to output directory for timeline tweets>'
-  handle_column: handle # name of column containing handles in handles_csv, as well as in timeline results
-  output_handle: false # indicate if you would like to include handles in the timeline results
-  skip_column: skip # name of column containing skip indicators (1's indicating handles to be skipped)
-  use_skip: false # indicate if you would like to use the skip column to filter handles
-  # Tweet query config
-  query: '<query string>' # Query string used to search for tweets in the query subcommand
-  max_query_response: 100
-  start_time: '' # Earliest time of query results, must be in format YYYY-MM-DDTHH:mm:ssZ (ex. 2016-06-23T09:07:21-07:00, Z=timezone)
-  end_time: '' # Latest time of query results. See above format. Query searches most recent/starting from end_time. Default is now-30s
 twitter:
   account:
     bearer_token: '<your twitter api bearer token>'
-    tweets_per_query: 100 # 100 is the maximum allowed (500 for queries is exception)
   # Can ignore these unless you would like to change the information retreived from twitter.
   # See https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
   #   and https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users

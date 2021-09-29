@@ -38,11 +38,7 @@ class User:
 		print(f"Pulling user information from given handles")
 
 		# setup save directory
-		save_dir = f"{output_dir}/users"
-		timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S') 
-		if not os.path.isdir(save_dir):
-			os.mkdir(save_dir)
-		save_path = f"{save_dir}/{timestamp}.csv"
+		save_path = f"{output_dir}/data.csv"
 		print(f"Saving users to {save_path}")
 
 
