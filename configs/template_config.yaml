@@ -3,7 +3,6 @@ local:
 twitter:
   account:
     bearer_token: '<your twitter api bearer token>'
-    tweets_per_query: 100 # 100 is the maximum allowed (500 for queries is exception)
   # Can ignore these unless you would like to change the information retreived from twitter.
   # See https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
   #   and https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users

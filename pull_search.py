@@ -15,7 +15,8 @@ def pull_search(config: TwitterPullConfig, client: Client, query: str,
     output_dir: str = None,
     max_response: int = 100,
     start_time: str = None, 
-    end_time: str = None):
+    end_time: str = None,
+    tweets_per_query: int = 100):
 
     # set up the timeline
     tweet_search = TweetSearch(client, config.twitter.query_params)
@@ -31,6 +32,6 @@ def pull_search(config: TwitterPullConfig, client: Client, query: str,
     try:
         tweet_search.pull(query, output_dir=output_dir,
             start_time = start_time, end_time = end_time,
-            max_results = max_response, batch_size  = config.twitter.account.tweets_per_query)
+            max_results = max_response, batch_size  = tweets_per_query)
     except Exception as e:
         print(f"Failed to pull tweets for query. Error: ", e)

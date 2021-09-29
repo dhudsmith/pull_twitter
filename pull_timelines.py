@@ -15,7 +15,8 @@ def pull_timelines(config: TwitterPullConfig, client: Client, handles_csv: str,
     handle_column: str = "handle", 
     skip_column: str = "skip",
     output_handle: bool = False, 
-    use_skip: bool = False):
+    use_skip: bool = False,
+    tweets_per_query: int = 100):
 
     # get handles
     df_handles = pd.read_csv(handles_csv)
@@ -34,6 +35,7 @@ def pull_timelines(config: TwitterPullConfig, client: Client, handles_csv: str,
         try:
             timeline.pull(handle, output_dir=output_dir, 
                 output_handle = output_handle, 
-                handle_col = handle_column)
+                handle_col = handle_column,
+                tweets_per_query = tweets_per_query)
         except Exception as e:
             print(f"Failed to pull timeline for {handle}. Error: ", e)
