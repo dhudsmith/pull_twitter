@@ -48,7 +48,7 @@ Using the subcommand `timeline` will collect the tweets in each non-skipped user
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles |
 
 ### Example
-```python pull_twitter.py --config-file ./configs/config.yaml timeline -hi "./data/celeb_handle_test.csv" -ho True```
+```python pull_twitter.py --config-file ./configs/config.yaml timeline -hi "./data/celeb_handle_test.csv" -oh True```
 
 ## Fetch User Data
 
