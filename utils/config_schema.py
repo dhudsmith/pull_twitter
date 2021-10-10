@@ -17,6 +17,7 @@ class TwitterConfig(BaseModel):
 
 class LocalConfig(BaseModel):
     output_dir: DirectoryPath
+    save_format: str
 
 
 # Full Config Model for app

@@ -28,7 +28,8 @@ class Timeline:
         self.client: Client = tweepy_client
         self.query_params = query_params
 
-    def pull(self, handle:str, output_dir: str, output_handle: bool = False, handle_col: str = "handle", tweets_per_query: int = 100):
+    def pull(self, handle:str, output_dir: str, save_format: str = 'csv', 
+        output_handle: bool = False, handle_col: str = "handle", tweets_per_query: int = 100):
         """
         Lookup the tweets to get updated reaction counts.
 
@@ -50,12 +51,13 @@ class Timeline:
         # setup save directory
         save_dir = f"{output_dir}/{handle}"
         os.mkdir(save_dir)
-        save_path = f"{save_dir}/data.csv"
+        save_path = f"{save_dir}/data.{save_format}"
         print(f"Saving tweets to {save_path}")        
 
         finished = False
         next_token = None
         num_collected = 0
+        df_tweets = None
         while not finished:
             # Get tweet data from twitter api
             try:
@@ -73,11 +75,17 @@ class Timeline:
             if tweets:
                 tweets = [twalc.Tweet(**tw).to_dict() for tw in tweets]
 
-                df_tweets = pd.DataFrame(tweets)
+                df_tweets = pd.concat([df_tweets, pd.DataFrame(tweets)], axis = 1) if df_tweets is not None else pd.DataFrame(tweets)
+                
                 if output_handle:
                     df_tweets[handle_col] = handle
-                df_tweets.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL, mode='a',
-                                 header=False if os.path.isfile(save_path) else True)
+                
+                if save_format == 'csv':
+                    df_tweets.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL,
+                                     header=True)
+                elif save_format == 'json':
+                    df_tweets.to_json(save_path, orient = 'table')
+
                 num_collected += len(tweets)
                 print(f"\rCollected {num_collected} tweets for @{handle}", end='')
 

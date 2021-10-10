@@ -27,7 +27,7 @@ class User:
 		self.client: Client = tweepy_client
 		self.query_params = query_params
 
-	def pull(self, handles:str, output_dir: str, batch_size: int = 100):
+	def pull(self, handles:str, output_dir: str, save_format: str = 'csv', batch_size: int = 100):
 		"""
 		Lookup the users to get updated follower counts.
 
@@ -38,12 +38,13 @@ class User:
 		print(f"Pulling user information from given handles")
 
 		# setup save directory
-		save_path = f"{output_dir}/data.csv"
+		save_path = f"{output_dir}/data.{save_format}"
 		print(f"Saving users to {save_path}")
 
 
 		handle_batches = [handles[i:i+batch_size] for i in range(0, len(handles), batch_size)]
 		num_collected = 0
+		df_users = None
 
 		for handle_batch in handle_batches:
 			try:
@@ -61,10 +62,14 @@ class User:
 			if users:
 				users = [twalc.User(**user_dict).to_dict() for user_dict in users]
 
-				df_users = pd.DataFrame(users)
+				df_users = pd.concat([df_users, pd.DataFrame(users)], axis = 1) if df_users is not None else pd.DataFrame(users)
 
-				df_users.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL, mode='a',
-								header=False if os.path.isfile(save_path) else True)
+				if save_format == 'csv':
+					df_users.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL,
+									header=True)
+				elif save_format == 'json':
+					df_users.to_json(save_path, orient = 'table')
+
 				num_collected += len(users)
 				print(f"\rCollected {num_collected} users", end='')
 

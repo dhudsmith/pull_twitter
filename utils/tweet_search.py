@@ -28,7 +28,7 @@ class TweetSearch:
 		self.client: Client = tweepy_client
 		self.query_params = query_params
 
-	def pull(self, query:str, output_dir: str, 
+	def pull(self, query:str, output_dir: str, save_format: str = 'csv',
 				start_time: Union[datetime, str] = None, end_time: Union[datetime, str] = None,
 				max_results: int = 100, batch_size: int = 100): # add start and end times
 		"""
@@ -37,6 +37,7 @@ class TweetSearch:
 		Args:
 			query- Query string to use in searching tweets
 			output_dir: parent directory of all twitter_pull results
+			save_format: the file type of the output results (csv or json)
 			start_time: tweets will be searched beginning at this time
 			end_time: tweets will be searched at or before this time
 			max_results: total number of tweets to return for query
@@ -45,7 +46,7 @@ class TweetSearch:
 		print(f"Pulling tweet results using '{query}' search query.")
 
 		# setup save directory
-		save_path = f"{output_dir}/data.csv"
+		save_path = f"{output_dir}/data.{save_format}"
 		print(f"Saving tweets to {save_path}")
 
 		num_batches = (max_results//batch_size) + 1
@@ -62,6 +63,7 @@ class TweetSearch:
 
 		next_token = None
 		num_collected = 0
+		df_tweets = None
 		for batch in batches:
 			
 			# Get tweet data from twitter api
@@ -82,10 +84,14 @@ class TweetSearch:
 			if tweets:
 				tweets = [twalc.Tweet(**tw).to_dict() for tw in tweets]
 
-				df_tweets = pd.DataFrame(tweets)
+				df_tweets = pd.concat([df_tweets, pd.DataFrame(tweets)], axis = 1) if df_tweets is not None else pd.DataFrame(tweets)
 
-				df_tweets.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL, mode='a',
-									header=False if os.path.isfile(save_path) else True)
+				if save_format == 'csv':
+					df_tweets.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL,
+										header=True)
+				elif save_format == 'json':
+					df_tweets.to_json(save_path, orient = 'table')
+
 				num_collected += len(tweets)
 				print(f"\rCollected {num_collected} tweets for query: {query}", end='')
 

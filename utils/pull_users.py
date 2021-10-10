@@ -29,6 +29,7 @@ def pull_users(config: TwitterPullConfig, client: Client, handles_csv: str,
     output_dir = str(config.local.output_dir) if not output_dir else output_dir
 
     try:
-        user.pull(handles, output_dir=output_dir)
+        user.pull(handles, output_dir=output_dir, save_format = config.local.save_format)
     except Exception as e:
         print(f"Failed to pull user data. Error: ", e)
+        

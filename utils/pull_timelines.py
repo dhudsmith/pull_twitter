@@ -34,6 +34,7 @@ def pull_timelines(config: TwitterPullConfig, client: Client, handles_csv: str,
         print(f"Processing handle {ix+1}/{len(handles)}")
         try:
             timeline.pull(handle, output_dir=output_dir, 
+                save_format = config.local.save_format,
                 output_handle = output_handle, 
                 handle_col = handle_column,
                 tweets_per_query = tweets_per_query)
