@@ -9,9 +9,9 @@ from utils.config_schema import TwitterPullConfig
 from tweepy.client import Client
 
 # Subcommand imports
-from pull_timelines import pull_timelines
-from pull_users import pull_users
-from pull_search import pull_search
+from utils.pull_timelines import pull_timelines
+from utils.pull_users import pull_users
+from utils.pull_search import pull_search
 
 if __name__ == "__main__":
 
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     dt_fmt = '%Y-%m-%d %H.%M.%S'
     timestamp = datetime.now().strftime(dt_fmt)
     subcommand_dir = f"{str(config.local.output_dir)}/{args['name']}"
-    output_time_dir = f"{subcommand_dir}/{timestamp}"
+    output_time_dir = f"{subcommand_dir}/{args['name']}_{timestamp}"
     if not os.path.isdir(subcommand_dir):
             os.mkdir(subcommand_dir)
 
@@ -90,3 +90,4 @@ if __name__ == "__main__":
     # Run the application with parsed configuration and initialized client
     args['func'](config, client, **command_kwargs)
     print("\n")
+    
