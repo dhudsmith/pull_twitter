@@ -28,30 +28,39 @@ class Timeline:
         self.client: Client = tweepy_client
         self.query_params = query_params
 
-    def pull(self, handle:str, output_dir: str, output_handle: bool = False, handle_col: str = "handle", tweets_per_query: int = 100):
+    def pull(self, ident: str, type: str, output_dir: str, ident_col: str, output_handle: bool = False,
+             tweets_per_query: int = 100):
         """
         Lookup the tweets to get updated reaction counts.
 
         Args:
+            ident: the identifier for the user, an instance of either 'handle' or 'author_id'
+            type: the type of identifier either 'handle' or 'author_id'
+            ident_col: the name of the output column to save the identifier
             limit: num_tweets the number of database entries processed. Mainly for debugging purposes.
         """
 
-        print(f"Pulling tweets from @{handle}'s timeline.")
+        print(f"Pulling timeline for {type} {ident}.")
 
         # attempt to get user_id
-        try:
-            user_id = self.client.get_user(username=handle).data.id
-        except Exception as e:
-            print(f"Failed to get user id for {handle}")
-            raise e
+        if type == 'handle':
+            try:
+                user_id = self.client.get_user(username=ident).data.id
+            except Exception as e:
+                print(f"Failed to get user id for {ident}")
+                raise e
 
-        print(f"Successfully retrieved user_id {user_id} for @{handle}.")
+            print(f"Successfully retrieved user_id {user_id} for @{ident}.")
+        elif type == 'author_id':
+            user_id = ident
+        else:
+            raise ValueError(f'type must be one of "handle" or "author_id". Received {type}')
 
         # setup save directory
-        save_dir = f"{output_dir}/{handle}"
+        save_dir = f"{output_dir}/{ident}"
         os.mkdir(save_dir)
         save_path = f"{save_dir}/data.csv"
-        print(f"Saving tweets to {save_path}")        
+        print(f"Saving tweets to {save_path}")
 
         finished = False
         next_token = None
@@ -65,7 +74,7 @@ class Timeline:
                 continue
             except exceptions.MaxRetries as e:
                 print(f"Max retries exceeded when calling the tweets api. Continuing but may lead to loss of "
-                            f"count data. Exception message: {e}")
+                      f"count data. Exception message: {e}")
                 continue
 
             # insert tweets into file
@@ -75,18 +84,17 @@ class Timeline:
 
                 df_tweets = pd.DataFrame(tweets)
                 if output_handle:
-                    df_tweets[handle_col] = handle
+                    df_tweets[ident_col] = user_id
                 df_tweets.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL, mode='a',
                                  header=False if os.path.isfile(save_path) else True)
                 num_collected += len(tweets)
-                print(f"\rCollected {num_collected} tweets for @{handle}", end='')
+                print(f"\rCollected {num_collected} tweets for {type} {ident}", end='')
 
             # pagination
             next_token = response.meta.get('next_token', None)
             if next_token is None:
                 finished = True
-                print('\n' + '-'*30)
-
+                print('\n' + '-' * 30)
 
     def get_tweets(self, ids: Union[List[Union[int, str]], Union[int, str]],
                    since_id: str = None,
