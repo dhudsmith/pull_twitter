@@ -17,26 +17,26 @@ from utils.twitter_schema import LookupQueryParams
 
 class User:
     """
-		The User class manages the connection to the twitter user api
-	"""
-
+    The User class manages the connection to the twitter user api
+    """
     def __init__(self,
                  tweepy_client: Client,
-                 query_params: LookupQueryParams):
+                 query_params: LookupQueryParams,
+                 ident_type: str):
 
         # store members
         self.client: Client = tweepy_client
         self.query_params = query_params
+        self.ident_type = ident_type
 
-    def pull(self, ident: str, type: str, output_dir: str, batch_size: int = 100):
+    def pull(self, ident: Union[List[str], str], output_dir: str, batch_size: int = 100):
         """
-		Lookup the users to get updated follower counts.
-
-		Args:
-			ident: the identifier for the user, an instance of either 'handle' or 'author_id'
-            type: the type of identifier either 'handle' or 'author_id'
-	    	batch_size: number of handles to include in each request.  Maximum for twitter api is 100
-		"""
+        Lookup the users to get updated follower counts.
+        Args:
+            ident: the identifier for the user, an instance of either 'handle' or 'author_id'
+            output_dir: the directory to save the data
+            batch_size: number of handles to include in each request.  Maximum for twitter api is 100
+        """
 
         print(f"Pulling user information from given handles")
 
@@ -49,7 +49,7 @@ class User:
 
         for ident_batch in ident_batches:
             try:
-                response = self.get_users_data(ident_batch, type=type)
+                response = self.get_users_data(ident_batch)
             except exceptions.EmptyTwitterResponseException as e:
                 print(f"No tweets in the response. Continuing. Exception message: {e}")
                 continue
@@ -70,7 +70,7 @@ class User:
                 num_collected += len(users)
                 print(f"\rCollected {num_collected} users", end='')
 
-    def get_users_data(self, ident: Union[List[str], str], type: str):
+    def get_users_data(self, ident: Union[List[str], str]):
 
         params: dict = self.query_params.dict(exclude_unset=True)
         # reformat all params as list type for tweepy
@@ -83,12 +83,12 @@ class User:
         retries = 0
         while retries < max_retries:
             try:
-                if type == 'handle':
+                if self.ident_type == 'handle':
                     return self.client.get_users(usernames=ident, **params)
-                elif type == 'author_id':
+                elif self.ident_type == 'author_id':
                     return self.client.get_users(ids=ident, **params)
                 else:
-                    raise ValueError(f'type must be one of "handle" or "author_id". Received {type}.')
+                    raise ValueError(f'type must be one of "handle" or "author_id". Received {self.ident_type}.')
             except tweepy.errors.TwitterServerError as e:
                 print("Warning:", e)
                 print("Sleeping for 0.1 seconds and retrying")

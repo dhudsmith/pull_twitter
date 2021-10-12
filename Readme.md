@@ -41,8 +41,8 @@ Using the subcommand `timeline` will collect the tweets in each non-skipped user
 ### Arguments
 | Full name | Shortened name | Description |
 | --------- | -------------- | ----------- |
-| --handles-csv | -hi | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) |
-| --output-handle | -oh | Indicates whether to include handles in timeline outputs |
+| --user-csv | -u | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) |
+| --output-user | -ou | Indicates whether to include handles in timeline outputs |
 | --handle-column | -hc | Name of handles column in handles-csv. Incompatible with author-id-column. |
 | --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. |
 | --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) |
@@ -59,7 +59,7 @@ Using the subcommand `users` will collect profile information connected to each 
 ### Arguments
 | Full name | Shortened name | Description |
 | --------- | -------------- | ----------- |
-| --handles-csv | -hi | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) |
+| --user-csv | -u | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) |
 | --handle-column | -hc | Name of handles column in handles-csv. Incompatible with author-id-column. |
 | --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. |
 | --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) |

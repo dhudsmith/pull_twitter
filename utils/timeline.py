@@ -22,28 +22,35 @@ class Timeline:
 
     def __init__(self,
                  tweepy_client: Client,
-                 query_params: LookupQueryParams):
+                 query_params: LookupQueryParams,
+                 ident_type: str):
 
         # store members
         self.client: Client = tweepy_client
         self.query_params = query_params
+        self.ident_type = ident_type
 
-    def pull(self, ident: str, type: str, output_dir: str, ident_col: str, output_handle: bool = False,
+    def pull(self,
+             ident: str,
+             output_dir: str,
+             ident_col: str,
+             output_user: bool = False,
              tweets_per_query: int = 100):
         """
         Lookup the tweets to get updated reaction counts.
 
         Args:
             ident: the identifier for the user, an instance of either 'handle' or 'author_id'
-            type: the type of identifier either 'handle' or 'author_id'
+            output_dir: location of output data
             ident_col: the name of the output column to save the identifier
-            limit: num_tweets the number of database entries processed. Mainly for debugging purposes.
+            output_user: weather or not to output the user identifier with each tweet
+            tweets_per_query: num_tweets the number of database entries processed. Mainly for debugging purposes.
         """
 
-        print(f"Pulling timeline for {type} {ident}.")
+        print(f"Pulling timeline for {self.ident_type} {ident}.")
 
         # attempt to get user_id
-        if type == 'handle':
+        if self.ident_type == 'handle':
             try:
                 user_id = self.client.get_user(username=ident).data.id
             except Exception as e:
@@ -51,10 +58,10 @@ class Timeline:
                 raise e
 
             print(f"Successfully retrieved user_id {user_id} for @{ident}.")
-        elif type == 'author_id':
+        elif self.ident_type == 'author_id':
             user_id = ident
         else:
-            raise ValueError(f'type must be one of "handle" or "author_id". Received {type}')
+            raise ValueError(f'type must be one of "handle" or "author_id". Received {self.ident_type}')
 
         # setup save directory
         save_dir = f"{output_dir}/{ident}"
@@ -83,12 +90,12 @@ class Timeline:
                 tweets = [twalc.Tweet(**tw).to_dict() for tw in tweets]
 
                 df_tweets = pd.DataFrame(tweets)
-                if output_handle:
+                if output_user:
                     df_tweets[ident_col] = user_id
                 df_tweets.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL, mode='a',
                                  header=False if os.path.isfile(save_path) else True)
                 num_collected += len(tweets)
-                print(f"\rCollected {num_collected} tweets for {type} {ident}", end='')
+                print(f"\rCollected {num_collected} tweets for {self.ident_type} {ident}", end='')
 
             # pagination
             next_token = response.meta.get('next_token', None)

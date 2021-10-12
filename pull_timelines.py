@@ -10,21 +10,20 @@ from utils.timeline import Timeline
 import pandas as pd
 
 
-def pull_timelines(config: TwitterPullConfig, client: Client, handles_csv: str,
+def pull_timelines(config: TwitterPullConfig, client: Client, user_csv: str,
                    output_dir: str = None,
                    handle_column: str = None,
                    author_id_column: str = None,
                    skip_column: str = "skip",
-                   output_handle: bool = False,
+                   output_user: bool = False,
                    use_skip: bool = False,
                    tweets_per_query: int = 100):
-    # get handles
-    df_handles = pd.read_csv(handles_csv)
+
+    # get search identifiers
+    df_handles = pd.read_csv(user_csv)
     if use_skip:
         df_handles = df_handles.loc[df_handles[skip_column] != 1]
 
-    # get search identifiers
-    print(handle_column, author_id_column)
     if handle_column and not author_id_column:
         search_ident = list(df_handles[handle_column])
         search_type = 'handle'
@@ -35,7 +34,7 @@ def pull_timelines(config: TwitterPullConfig, client: Client, handles_csv: str,
         raise ValueError("`handle_column` and `author_id_column` are mutually exclusive arguments.")
 
     # set up the timeline
-    timeline = Timeline(client, config.twitter.query_params)
+    timeline = Timeline(client, config.twitter.query_params, search_type)
 
     output_dir = str(config.local.output_dir) if not output_dir else output_dir
 
@@ -45,9 +44,8 @@ def pull_timelines(config: TwitterPullConfig, client: Client, handles_csv: str,
         try:
             timeline.pull(
                 ident=ident,
-                type=search_type,
                 output_dir=output_dir,
-                output_handle=output_handle,
+                output_user=output_user,
                 ident_col=search_type,
                 tweets_per_query=tweets_per_query)
         except Exception as e:
