@@ -29,7 +29,7 @@ class User:
         self.query_params = query_params
         self.ident_type = ident_type
 
-    def pull(self, ident: Union[List[str], str], output_dir: str, , save_format: str = 'csv', batch_size: int = 100):
+    def pull(self, ident: Union[List[str], str], output_dir: str, save_format: str = 'csv', batch_size: int = 100):
         """
         Lookup the users to get updated follower counts.
         Args:
@@ -67,10 +67,10 @@ class User:
                 df_users = pd.DataFrame(users)
 
                 if save_format == 'csv':
-					df_users.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL,
-									header=True)
-				elif save_format == 'json':
-					df_users.to_json(save_path, orient = 'table')
+                    df_users.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL,
+                                    header=True)
+                elif save_format == 'json':
+                    df_users.to_json(save_path, orient = 'table')
 
                 num_collected += len(users)
                 print(f"\rCollected {num_collected} users", end='')

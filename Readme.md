@@ -52,8 +52,8 @@ For help information, run the command:
 | --------- | -------------- | ----------- |
 | --user-csv | -u | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
 | --output-user | -ou | Indicates whether to include handles in timeline outputs | No | False |
-| --handle-column | -hc | Name of handles column in handles-csv. Incompatible with author-id-column. | No | "handle" |
-| --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. | No | "author_id" |
+| --handle-column | -hc | Name of handles column in handles-csv. Incompatible with author-id-column. | No (mutually exclusive with above) | "handle" |
+| --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. | No (mutually exclusive with above) | "author_id" |
 | --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No |  |
 
@@ -69,9 +69,9 @@ For help information, run the command:
 ### Arguments
 | Full name | Shortened name | Description | Required? | Default |
 | --------- | -------------- | ----------- | --------- | ------- |
-| --user-csv | -hi | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
-| --handle-column | -hc | Name of handles column in handles-csv | No | "handle" |
-| --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. | No | "author_id" |
+| --user-csv | -u | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
+| --handle-column | -hc | Name of handles column in handles-csv | No (mutually exclusive with above) | "handle" |
+| --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. | No (mutually exclusive with above) | "author_id" |
 | --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | False |
 

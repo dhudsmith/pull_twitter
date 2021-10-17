@@ -90,9 +90,9 @@ class TweetSearch:
 
 				# Expansions parsing
 				if inc_tweets:
-					ref_tweets = [twalc.Tweet(**tw) for tw in inc_tweets]
+					ref_tweets = [twalc.Tweet(**tw).to_dict() for tw in inc_tweets]
 				if inc_users:
-					authors = [twalc.User(**us) for us in inc_users]
+					authors = [twalc.User(**us).to_dict() for us in inc_users]
 				# if inc_media:
 				#     media = [twalc.Media(**md) for md in inc_media]
 				if has_refs:
@@ -103,16 +103,16 @@ class TweetSearch:
 
 				# Expansions dataframes
 				if inc_tweets:
-					df_refs   = pd.concat([df_refs, pd.DataFrame(ref_tweets)], axis = 1) if df_refs is not None else pd.DataFrame(ref_tweets)
+					df_refs   = pd.concat([df_refs, pd.DataFrame(ref_tweets)], axis = 0) if df_refs is not None else pd.DataFrame(ref_tweets)
 				if inc_users:
-					df_users  = pd.concat([df_users, pd.DataFrame(authors)], axis = 1) if df_users is not None else pd.DataFrame(authors)
+					df_users  = pd.concat([df_users, pd.DataFrame(authors)], axis = 0) if df_users is not None else pd.DataFrame(authors)
 				# if inc_media:
 				#     df_media  = pd.concat([df_media, pd.DataFrame(media)], axis = 1) if df_media is not None else pd.DataFrame(media)
 				if has_refs:
-					df_links  = pd.concat([df_links, pd.DataFrame(links)], axis = 1) if df_links is not None else pd.DataFrame(links)
+					df_links  = pd.concat([df_links, pd.DataFrame(links)], axis = 0) if df_links is not None else pd.DataFrame(links)
 
 				# Original tweets dataframe
-				df_tweets = pd.concat([df_tweets, pd.DataFrame(tweets)], axis = 1) if df_tweets is not None else pd.DataFrame(tweets)
+				df_tweets = pd.concat([df_tweets, pd.DataFrame(tweets)], axis = 0) if df_tweets is not None else pd.DataFrame(tweets)
 
 				if save_format == 'csv':
 					# Expansions saving

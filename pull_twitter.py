@@ -20,23 +20,21 @@ if __name__ == "__main__":
     parser.add_argument("-cf", "--config-file", help="YAML configuration file for application", required=True)
     subparsers = parser.add_subparsers()
 
-    # Timeline subcommand
+    # Timeline subcommand -----------------------------------------------------------------------
     parser_timeline = subparsers.add_parser("timeline", aliases=["tl"], 
         help = "Pull tweets from users' timelines", 
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser_timeline.add_argument("-hi", "--handles-csv", type=str, 
+    parser_timeline.add_argument("-u", "--user-csv", type=str, 
         help="CSV containing handles of users to pull timelines for", required = True)
-    parser_timeline.add_argument("-oh", "--output-handle", type=bool, 
+    parser_timeline.add_argument("-ou", "--output-user", type=bool, 
         help="Indicates whether to include handles in timeline outputs", required = False,
         default=False)
 
     timeline_group = parser_timeline.add_mutually_exclusive_group(required=True)
     timeline_group.add_argument("-hc", "--handle-column", type=str, 
-        help="Name of handles column in handles-csv", required = False,
-        default="handle")
+        help="Name of handles column in handles-csv", required = False)
     timeline_group.add_argument("-aic", "--author-id-column", type=str, 
-        help="Name of handles column in handles-csv",
-        default="author_id")
+        help="Name of handles column in handles-csv")
 
     parser_timeline.add_argument("-sc", "--skip-column", type=str, 
         help="Name of column containing skip indicators in handles-csv", required = False,
@@ -50,20 +48,19 @@ if __name__ == "__main__":
     parser_timeline.set_defaults(name="timeline")
     parser_timeline.set_defaults(func=pull_timelines)
 
-    # Users subcommand
+
+    # Users subcommand -----------------------------------------------------------------------
     parser_users    = subparsers.add_parser("users", aliases=["us"], 
         help = 'Pull user data such as follower counts',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser_users.add_argument("-hi", "--handles-csv", type=str, 
-        help="CSV containg handles of users to pull timelines for", required = True)
+    parser_users.add_argument("-u", "--user-csv", type=str, 
+        help="CSV containg handles/author ids of users to pull data for", required = True)
 
     users_group = parser_users.add_mutually_exclusive_group(required=True)
     users_group.add_argument("-hc", "--handle-column", type=str, 
-        help="Name of handles column in handles-csv", required = False,
-        default = "handle")
+        help="Name of handles column in handles-csv")
     users_group.add_argument("-aic", "--author-id-column", type=str, 
-        help="Name of handles column in handles-csv",
-        default="author_id")
+        help="Name of handles column in handles-csv")
 
     parser_users.add_argument("-sc", "--skip-column", type=str, 
         help="Name of column containing skip indicators in handles-csv", required = False,
@@ -77,7 +74,8 @@ if __name__ == "__main__":
     parser_users.set_defaults(name="users")
     parser_users.set_defaults(func=pull_users)
 
-    # Query subcommand
+
+    # Query subcommand -----------------------------------------------------------------------
     parser_search    = subparsers.add_parser("search", aliases=["s"], 
         help = 'Pull tweets based on a given query',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
