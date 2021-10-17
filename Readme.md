@@ -48,14 +48,14 @@ For help information, run the command:
 ```python pull_twitter.py timeline --help```
 
 ### Arguments
-| Full name | Shortened name | Description | Required? | Default |
-| --------- | -------------- | ----------- | --------- | ------- |
-| --handles-csv | -hi | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
-| --output-handle | -oh | Indicates whether to include handles in timeline outputs | No | False |
-| --handle-column | -hc | Name of handles column in handles-csv | No | "handle" |
+| Full name | Shortened name | Description |
+| --------- | -------------- | ----------- |
+| --user-csv | -u | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
+| --output-user | -ou | Indicates whether to include handles in timeline outputs | No | False |
+| --handle-column | -hc | Name of handles column in handles-csv. Incompatible with author-id-column. | No | "handle" |
+| --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. | No | "author_id" |
 | --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No |  |
-| --tweets-per-query | -tpq | Number of tweets present in each response from the Twitter API | 
 
 ### Example
 ```python pull_twitter.py --config-file ./configs/config.yaml timeline -hi "./data/celeb_handle_test.csv" -oh True```
@@ -69,11 +69,11 @@ For help information, run the command:
 ### Arguments
 | Full name | Shortened name | Description | Required? | Default |
 | --------- | -------------- | ----------- | --------- | ------- |
-| --handles-csv | -hi | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
+| --user-csv | -hi | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
 | --handle-column | -hc | Name of handles column in handles-csv | No | "handle" |
-| --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "Skip" |
+| --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. | No | "author_id" |
+| --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | False |
-| --tweets-per-query | -tpq | Number of tweets present in each response from the Twitter API | No | 100 |
 
 ### Example
 ```python pull_twitter.py --config-file ./configs/config.yaml users -hi "./data/celeb_handle_test.csv"```

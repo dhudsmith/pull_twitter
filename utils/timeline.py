@@ -22,37 +22,54 @@ class Timeline:
 
     def __init__(self,
                  tweepy_client: Client,
-                 query_params: LookupQueryParams):
+                 query_params: LookupQueryParams,
+                 ident_type: str):
 
         # store members
         self.client: Client = tweepy_client
         self.query_params = query_params
+        self.ident_type = ident_type
 
-    def pull(self, handle:str, output_dir: str, save_format: str = 'csv', 
-        output_handle: bool = False, handle_col: str = "handle", tweets_per_query: int = 100):
+    def pull(self,
+             ident: str,
+             output_dir: str,
+             ident_col: str,
+             save_format: str = 'csv',
+             output_user: bool = False,
+             tweets_per_query: int = 100):
         """
         Lookup the tweets to get updated reaction counts.
 
         Args:
-            limit: num_tweets the number of database entries processed. Mainly for debugging purposes.
+            ident: the identifier for the user, an instance of either 'handle' or 'author_id'
+            output_dir: location of output data
+            ident_col: the name of the output column to save the identifier
+            output_user: weather or not to output the user identifier with each tweet
+            tweets_per_query: num_tweets the number of database entries processed. Mainly for debugging purposes.
         """
 
-        print(f"Pulling tweets from @{handle}'s timeline.")
+        print(f"Pulling timeline for {self.ident_type} {ident}.")
 
         # attempt to get user_id
-        try:
-            user_id = self.client.get_user(username=handle).data.id
-        except Exception as e:
-            print(f"Failed to get user id for {handle}")
-            raise e
+        if self.ident_type == 'handle':
+            try:
+                user_id = self.client.get_user(username=ident).data.id
+            except Exception as e:
+                print(f"Failed to get user id for {ident}")
+                raise e
 
-        print(f"Successfully retrieved user_id {user_id} for @{handle}.")
+            print(f"Successfully retrieved user_id {user_id} for @{ident}.")
+        elif self.ident_type == 'author_id':
+            user_id = ident
+        else:
+            raise ValueError(f'type must be one of "handle" or "author_id". Received {self.ident_type}')
 
         # setup save directory
-        save_dir = f"{output_dir}/{handle}"
+        save_dir = f"{output_dir}/{ident}"
         os.mkdir(save_dir)
         save_path = f"{save_dir}/data_%s.{save_format}"
         print(f"Saving tweets to {save_path}")        
+
 
         finished = False
         next_token = None
@@ -67,7 +84,7 @@ class Timeline:
                 continue
             except exceptions.MaxRetries as e:
                 print(f"Max retries exceeded when calling the tweets api. Continuing but may lead to loss of "
-                            f"count data. Exception message: {e}")
+                      f"count data. Exception message: {e}")
                 continue
 
             # insert tweets into file
@@ -91,6 +108,7 @@ class Timeline:
                 # Original Tweets Parsing
                 tweets = [twalc.Tweet(**tw).to_dict() for tw in tweets]
                 
+
                 # Expansions dataframes
                 if inc_tweets:
                     df_refs   = pd.concat([df_refs, pd.DataFrame(ref_tweets)], axis = 1) if df_refs is not None else pd.DataFrame(ref_tweets)
@@ -104,9 +122,10 @@ class Timeline:
                 # Original tweets dataframe
                 df_tweets = pd.concat([df_tweets, pd.DataFrame(tweets)], axis = 1) if df_tweets is not None else pd.DataFrame(tweets)
 
+
                 
                 if output_handle:
-                    df_tweets[handle_col] = handle
+                    df_tweets[ident_col] = handle
                 
                 if save_format == 'csv':
                     # Expansions saving
@@ -141,16 +160,14 @@ class Timeline:
                     if has_refs:
                         df_links.to_json(save_path % 'ref_links', orient = 'table')
                     df_tweets.to_json(save_path, orient = 'table')
-
-
                 num_collected += len(tweets)
-                print(f"\rCollected {num_collected} tweets for @{handle}", end='')
+                print(f"\rCollected {num_collected} tweets for {self.ident_type} {ident}", end='')
 
             # pagination
             next_token = response.meta.get('next_token', None)
             if next_token is None:
                 finished = True
-                print('\n' + '-'*30)
+                print('\n' + '-' * 30)
 
     def get_tweets(self, ids: Union[List[Union[int, str]], Union[int, str]],
                    since_id: str = None,

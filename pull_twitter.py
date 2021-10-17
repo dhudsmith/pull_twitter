@@ -29,9 +29,15 @@ if __name__ == "__main__":
     parser_timeline.add_argument("-oh", "--output-handle", type=bool, 
         help="Indicates whether to include handles in timeline outputs", required = False,
         default=False)
-    parser_timeline.add_argument("-hc", "--handle-column", type=str, 
+
+    timeline_group = parser_timeline.add_mutually_exclusive_group(required=True)
+    timeline_group.add_argument("-hc", "--handle-column", type=str, 
         help="Name of handles column in handles-csv", required = False,
         default="handle")
+    timeline_group.add_argument("-aic", "--author-id-column", type=str, 
+        help="Name of handles column in handles-csv",
+        default="author_id")
+
     parser_timeline.add_argument("-sc", "--skip-column", type=str, 
         help="Name of column containing skip indicators in handles-csv", required = False,
         default="skip")
@@ -50,9 +56,15 @@ if __name__ == "__main__":
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_users.add_argument("-hi", "--handles-csv", type=str, 
         help="CSV containg handles of users to pull timelines for", required = True)
-    parser_users.add_argument("-hc", "--handle-column", type=str, 
+
+    users_group = parser_users.add_mutually_exclusive_group(required=True)
+    users_group.add_argument("-hc", "--handle-column", type=str, 
         help="Name of handles column in handles-csv", required = False,
         default = "handle")
+    users_group.add_argument("-aic", "--author-id-column", type=str, 
+        help="Name of handles column in handles-csv",
+        default="author_id")
+
     parser_users.add_argument("-sc", "--skip-column", type=str, 
         help="Name of column containing skip indicators in handles-csv", required = False,
         default = "skip")
@@ -86,10 +98,8 @@ if __name__ == "__main__":
     parser_search.set_defaults(name="search")
     parser_search.set_defaults(func=pull_search)
 
-
     # Extract the command line arguments
     args = vars(parser.parse_args())
-
 
     # API setup and configuration
 
@@ -109,7 +119,7 @@ if __name__ == "__main__":
     subcommand_dir = f"{str(config.local.output_dir)}/{args['name']}"
     output_time_dir = f"{subcommand_dir}/{args['name']}_{timestamp}"
     if not os.path.isdir(subcommand_dir):
-            os.mkdir(subcommand_dir)
+        os.mkdir(subcommand_dir)
 
     os.makedirs(output_time_dir)
 
@@ -120,10 +130,9 @@ if __name__ == "__main__":
 
     # Clean command keyword arguments
     ignore_args = ['config_file', 'name', 'func']
-    command_kwargs = {key:value for key, value in args.items() if (not key in ignore_args) and (value)}
+    command_kwargs = {key: value for key, value in args.items() if (not key in ignore_args) and (value)}
     command_kwargs['output_dir'] = output_time_dir
 
     # Run the application with parsed configuration and initialized client
     args['func'](config, client, **command_kwargs)
     print("\n")
-    
