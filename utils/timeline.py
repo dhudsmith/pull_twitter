@@ -51,13 +51,13 @@ class Timeline:
         # setup save directory
         save_dir = f"{output_dir}/{handle}"
         os.mkdir(save_dir)
-        save_path = f"{save_dir}/data.{save_format}"
+        save_path = f"{save_dir}/data_%s.{save_format}"
         print(f"Saving tweets to {save_path}")        
 
         finished = False
         next_token = None
         num_collected = 0
-        df_tweets = None
+        df_links, df_refs, df_users, df_tweets = None, None, None, None
         while not finished:
             # Get tweet data from twitter api
             try:
@@ -72,17 +72,49 @@ class Timeline:
 
             # insert tweets into file
             tweets: List[dict] = response.data
+            inc_tweets: List[dict] = response.includes['tweets'] if 'tweets' in response.includes.keys() else None
+            inc_users: List[dict] = response.includes['users'] if 'users' in response.includes.keys() else None
             if tweets:
-                tweets = [twalc.Tweet(**tw).to_dict() for tw in tweets]
+                
+                # Expansions parsing
+                if inc_tweets:
+                    ref_tweets = [twalc.Tweet(**tw) for tw in inc_tweets]
+                if inc_users:
+                    authors = [twalc.User(**us) for us in inc_users]
+                links = Timeline.__parse_tweet_links(tweets)
 
+                # Original Tweets Parsing
+                tweets = [twalc.Tweet(**tw).to_dict() for tw in tweets]
+                
+                # Expansions dataframes
+                if inc_tweets:
+                    df_refs   = pd.concat([df_refs, pd.DataFrame(ref_tweets)], axis = 1) if df_refs is not None else pd.DataFrame(ref_tweets)
+                if inc_users:
+                    df_users  = pd.concat([df_users, pd.DataFrame(authors)], axis = 1) if df_users is not None else pd.DataFrame(authors)
+                df_links  = pd.concat([df_links, pd.DataFrame(links)], axis = 1) if df_links is not None else pd.DataFrame(links)
+                
+                # Original tweets dataframe
                 df_tweets = pd.concat([df_tweets, pd.DataFrame(tweets)], axis = 1) if df_tweets is not None else pd.DataFrame(tweets)
+
                 
                 if output_handle:
                     df_tweets[handle_col] = handle
                 
                 if save_format == 'csv':
-                    df_tweets.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL,
-                                     header=True)
+                    # Expansions saving
+                    if inc_tweets:
+                        df_refs.to_csv(save_path % '_ref_tweets', index=False, quoting=csv.QUOTE_ALL,
+                                        header=True)
+                    if inc_tweets:
+                        df_users.to_csv(save_path % '_authors', index=False, quoting=csv.QUOTE_ALL,
+                                        header=True)
+                    df_links.to_csv(save_path % '_ref_links', index=False, quoting = csv.QUOTE_ALL,
+                                    header=True)
+
+                    # Original Tweets Saving
+                    df_tweets.to_csv(save_path % '_tweets', index=False, quoting=csv.QUOTE_ALL,
+                                    header=True)
+
                 elif save_format == 'json':
                     df_tweets.to_json(save_path, orient = 'table')
 
@@ -94,7 +126,6 @@ class Timeline:
             if next_token is None:
                 finished = True
                 print('\n' + '-'*30)
-
 
     def get_tweets(self, ids: Union[List[Union[int, str]], Union[int, str]],
                    since_id: str = None,
@@ -123,6 +154,21 @@ class Timeline:
                 print("Sleeping for 0.1 seconds and retrying")
                 retries += 1
                 time.sleep(0.1)
+
+
+    @staticmethod
+    def __parse_tweet_links(tweets: List[Tweet]) -> List[dict]:
+        tweet_links = []
+        for tweet in tweets:
+            if tweet['referenced_tweets'] is not None:
+                for ref in tweet['referenced_tweets']:
+                    new_link = {
+                        'parent_id': tweet['id'], 
+                        'id': ref['id'],
+                        'type': ref['type']
+                    }
+                    tweet_links.append(new_link)
+        return tweet_links
 
     @staticmethod
     def _get_reaction_counts(tweet: Tweet) -> Dict:
