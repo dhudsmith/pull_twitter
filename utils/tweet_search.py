@@ -118,34 +118,43 @@ class TweetSearch:
 					# Expansions saving
 					# Full referenced tweets data
 					if inc_tweets:
+						df_refs = TweetSearch.__fix_floats(df_refs)
 						df_refs.to_csv(save_path % 'ref_tweets', index=False, quoting=csv.QUOTE_ALL,
-										header=True)
+									header=True)
 					# Full author user data
 					if inc_users:
+						df_users = TweetSearch.__fix_floats(df_users)
 						df_users.to_csv(save_path % 'authors', index=False, quoting=csv.QUOTE_ALL,
-										header=True)
+									header=True)
 					# Full media data
 					# if inc_media:
 					#     df_media.to_csv(save_path % 'media', index=False, quoting=csv.QUOTE_ALL,
 					#                     header=True)
 					# parent-child links for referenced_tweets
 					if has_refs:
+						df_links = TweetSearch.__fix_floats(df_links)
 						df_links.to_csv(save_path % 'ref_links', index=False, quoting = csv.QUOTE_ALL,
-										header=True)
+									header=True)
 
 					# Original Tweets Saving
+					df_tweets = TweetSearch.__fix_floats(df_tweets)
 					df_tweets.to_csv(save_path % 'tweets', index=False, quoting=csv.QUOTE_ALL,
 									header=True)
 
 				elif save_format == 'json':
 					if inc_tweets:
+						df_refs = TweetSearch.__fix_floats(df_refs)
 						df_refs.to_json(save_path % 'ref_tweets', orient = 'table')
 					if inc_users:
+						df_users = TweetSearch.__fix_floats(df_users)
 						df_users.to_json(save_path % 'authors', orient = 'table')
 					# if inc_media:
 					    # df_media.to_json(save_path % 'media', orient = 'table')
 					if has_refs:
+						df_links = TweetSearch.__fix_floats(df_links)
 						df_links.to_json(save_path % 'ref_links', orient = 'table')
+					    
+					df_tweets = TweetSearch.__fix_floats(df_tweets)
 					df_tweets.to_json(save_path, orient = 'table')
 
 				num_collected += len(tweets)
@@ -195,6 +204,17 @@ class TweetSearch:
 				print("Sleeping for 0.1 seconds and retrying")
 				retries += 1
 				time.sleep(0.1)
+
+	@staticmethod
+	def __fix_floats(df: pd.DataFrame) -> pd.DataFrame:
+		#Select all float columns and Float64 columns (coerced after concatenating nullable values)
+		float_cols = df.select_dtypes(include=[float, "Float64"])
+
+		# Convert float columns to nullable Int64
+		for col in float_cols:
+			df[col] = df[col].astype('Int64')
+
+		return df
 
 	@staticmethod
 	def __parse_tweet_links(tweets: List[Tweet]) -> List[dict]:

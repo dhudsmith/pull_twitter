@@ -5,6 +5,7 @@ from typing import Union, List, Dict
 import csv
 
 import pandas as pd
+import numpy as np
 import tweepy.errors
 from tweepy.client import Client
 from tweepy.tweet import Tweet
@@ -122,8 +123,6 @@ class Timeline:
                 # Original tweets dataframe
                 df_tweets = pd.concat([df_tweets, pd.DataFrame(tweets)], axis = 0) if df_tweets is not None else pd.DataFrame(tweets)
 
-
-                
                 if output_user:
                     df_tweets[ident_col] = handle
                 
@@ -131,10 +130,12 @@ class Timeline:
                     # Expansions saving
                     # Full referenced tweets data
                     if inc_tweets:
+                        df_refs = Timeline.__fix_floats(df_refs)
                         df_refs.to_csv(save_path % 'ref_tweets', index=False, quoting=csv.QUOTE_ALL,
                                         header=True)
                     # Full author user data
                     if inc_users:
+                        df_users = Timeline.__fix_floats(df_users)
                         df_users.to_csv(save_path % 'authors', index=False, quoting=csv.QUOTE_ALL,
                                         header=True)
                     # Full media data
@@ -143,22 +144,29 @@ class Timeline:
                     #                     header=True)
                     # parent-child links for referenced_tweets
                     if has_refs:
+                        df_links = Timeline.__fix_floats(df_links)
                         df_links.to_csv(save_path % 'ref_links', index=False, quoting = csv.QUOTE_ALL,
                                     header=True)
 
                     # Original Tweets Saving
+                    df_tweets = Timeline.__fix_floats(df_tweets)
                     df_tweets.to_csv(save_path % 'tweets', index=False, quoting=csv.QUOTE_ALL,
                                     header=True)
 
                 elif save_format == 'json':
                     if inc_tweets:
+                        df_refs = Timeline.__fix_floats(df_refs)
                         df_refs.to_json(save_path % 'ref_tweets', orient = 'table')
                     if inc_users:
+                        df_users = Timeline.__fix_floats(df_users)
                         df_users.to_json(save_path % 'authors', orient = 'table')
                     # if inc_media:
                         # df_media.to_json(save_path % 'media', orient = 'table')
                     if has_refs:
+                        df_links = Timeline.__fix_floats(df_links)
                         df_links.to_json(save_path % 'ref_links', orient = 'table')
+                        
+                    df_tweets = Timeline.__fix_floats(df_tweets)
                     df_tweets.to_json(save_path, orient = 'table')
                 num_collected += len(tweets)
                 print(f"\rCollected {num_collected} tweets for {self.ident_type} {ident}", end='')
@@ -197,6 +205,16 @@ class Timeline:
                 retries += 1
                 time.sleep(0.1)
 
+    @staticmethod
+    def __fix_floats(df: pd.DataFrame) -> pd.DataFrame:
+        #Select all float columns and Float64 columns (coerced after concatenating nullable values)
+        float_cols = df.select_dtypes(include=[float, "Float64"])
+
+        # Convert float columns to nullable Int64
+        for col in float_cols:
+            df[col] = df[col].astype('Int64')
+
+        return df
 
     @staticmethod
     def __parse_tweet_links(tweets: List[Tweet]) -> List[dict]:
