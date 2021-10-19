@@ -84,6 +84,8 @@ class TweetSearch:
 			has_refs: bool = 'referenced_tweets' in self.query_params.tweet_fields
 			inc_tweets: List[dict] = response.includes['tweets'] if 'tweets' in response.includes.keys() else None
 			inc_users: List[dict] = response.includes['users'] if 'users' in response.includes.keys() else None
+			
+			# TODO: support media objects in twitter-alchemy
 			# inc_media: List[dict] = response.includes['media'] if 'media' in response.includes.keys() else None
 
 			if tweets:
@@ -103,27 +105,30 @@ class TweetSearch:
 
 				# Expansions dataframes
 				if inc_tweets:
-					df_refs   = pd.concat([df_refs, pd.DataFrame(ref_tweets)], axis = 0) if df_refs is not None else pd.DataFrame(ref_tweets)
+					new_inc_tweets = TweetSearch.__fix_floats(pd.DataFrame(ref_tweets))
+					df_refs   = pd.concat([df_refs, new_inc_tweets], axis = 0) if df_refs is not None else new_inc_tweets
 				if inc_users:
-					df_users  = pd.concat([df_users, pd.DataFrame(rel_users)], axis = 0) if df_users is not None else pd.DataFrame(rel_users)
+					new_inc_users = TweetSearch.__fix_floats(pd.DataFrame(rel_users))
+					df_users  = pd.concat([df_users, pd.DataFrame(rel_users)], axis = 0) if df_users is not None else new_inc_users
 				# if inc_media:
-				#     df_media  = pd.concat([df_media, pd.DataFrame(media)], axis = 1) if df_media is not None else pd.DataFrame(media)
+				#     new_media = TweetSearch.__fix_floats(pd.DataFrame(media))
+				#     df_media  = pd.concat([df_media, new_media], axis = 0) if df_media is not None else new_media
 				if has_refs:
-					df_links  = pd.concat([df_links, pd.DataFrame(links)], axis = 0) if df_links is not None else pd.DataFrame(links)
+					new_links = TweetSearch.__fix_floats(pd.DataFrame(links))
+					df_links  = pd.concat([df_links, new_links], axis = 0) if df_links is not None else new_links
 
 				# Original tweets dataframe
-				df_tweets = pd.concat([df_tweets, pd.DataFrame(tweets)], axis = 0) if df_tweets is not None else pd.DataFrame(tweets)
+				new_tweets = TweetSearch.__fix_floats(pd.DataFrame(tweets))
+				df_tweets = pd.concat([df_tweets, new_tweets], axis = 0) if df_tweets is not None else new_tweets
 
 				if save_format == 'csv':
 					# Expansions saving
 					# Full referenced tweets data
 					if inc_tweets:
-						df_refs = TweetSearch.__fix_floats(df_refs)
 						df_refs.to_csv(save_path % 'ref_tweets', index=False, quoting=csv.QUOTE_ALL,
 									header=True)
 					# Full author user data
 					if inc_users:
-						df_users = TweetSearch.__fix_floats(df_users)
 						df_users.to_csv(save_path % 'users', index=False, quoting=csv.QUOTE_ALL,
 									header=True)
 					# Full media data
@@ -132,29 +137,23 @@ class TweetSearch:
 					#                     header=True)
 					# parent-child links for referenced_tweets
 					if has_refs:
-						df_links = TweetSearch.__fix_floats(df_links)
 						df_links.to_csv(save_path % 'ref_links', index=False, quoting = csv.QUOTE_ALL,
 									header=True)
 
 					# Original Tweets Saving
-					df_tweets = TweetSearch.__fix_floats(df_tweets)
 					df_tweets.to_csv(save_path % 'tweets', index=False, quoting=csv.QUOTE_ALL,
 									header=True)
 
 				elif save_format == 'json':
 					if inc_tweets:
-						df_refs = TweetSearch.__fix_floats(df_refs)
 						df_refs.to_json(save_path % 'ref_tweets', orient = 'table')
 					if inc_users:
-						df_users = TweetSearch.__fix_floats(df_users)
 						df_users.to_json(save_path % 'users', orient = 'table')
 					# if inc_media:
 					    # df_media.to_json(save_path % 'media', orient = 'table')
 					if has_refs:
-						df_links = TweetSearch.__fix_floats(df_links)
 						df_links.to_json(save_path % 'ref_links', orient = 'table')
 					    
-					df_tweets = TweetSearch.__fix_floats(df_tweets)
 					df_tweets.to_json(save_path, orient = 'table')
 
 				num_collected += len(tweets)
