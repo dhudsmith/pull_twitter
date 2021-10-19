@@ -34,9 +34,9 @@ python pull_twitter.py --config_file <path to config yaml file> <subcommand> <su
 All data will be saved to the directory indicated by output_dir in the designated config file.  Each subcommand is provided an independent subdirectory to save outputs, and all results are stored in timestamped directories within.
 
 If expansions are designated in the config file, additional output csv's are created to hold the additional data:
-* author_id
-	* for tweet-based outputs, this expansion creates a data file "data_authors.csv" holding user data
-* referenced_tweets.id 
+* author_id/referenced_tweets.id.author_id/entities.mentions.username
+	* for tweet-based outputs, this expansion creates a data file "data_users.csv" holding user data
+* referenced_tweets.id
 	* for tweet-based outputs, this expansion creates a data file "data_ref_tweets.csv" holding the tweet data for retweets, replies, and quotes
 	* an additional data file "data_ref_links.csv" is also created holding the relationships between tweets and reference tweets to link the two outputs
 

@@ -100,7 +100,7 @@ class Timeline:
                 if inc_tweets:
                     ref_tweets = [twalc.Tweet(**tw).to_dict() for tw in inc_tweets]
                 if inc_users:
-                    authors = [twalc.User(**us).to_dict() for us in inc_users]
+                    rel_users = [twalc.User(**us).to_dict() for us in inc_users]
                 # if inc_media:
                 #     media = [twalc.Media(**md) for md in inc_media]
                 if has_refs:
@@ -114,7 +114,7 @@ class Timeline:
                 if inc_tweets:
                     df_refs   = pd.concat([df_refs, pd.DataFrame(ref_tweets)], axis = 0) if df_refs is not None else pd.DataFrame(ref_tweets)
                 if inc_users:
-                    df_users  = pd.concat([df_users, pd.DataFrame(authors)], axis = 0) if df_users is not None else pd.DataFrame(authors)
+                    df_users  = pd.concat([df_users, pd.DataFrame(rel_users)], axis = 0) if df_users is not None else pd.DataFrame(rel_users)
                 # if inc_media:
                 #     df_media  = pd.concat([df_media, pd.DataFrame(media)], axis = 0) if df_media is not None else pd.DataFrame(media)
                 if has_refs:
@@ -136,7 +136,7 @@ class Timeline:
                     # Full author user data
                     if inc_users:
                         df_users = Timeline.__fix_floats(df_users)
-                        df_users.to_csv(save_path % 'authors', index=False, quoting=csv.QUOTE_ALL,
+                        df_users.to_csv(save_path % 'users', index=False, quoting=csv.QUOTE_ALL,
                                         header=True)
                     # Full media data
                     # if inc_media:
@@ -159,7 +159,7 @@ class Timeline:
                         df_refs.to_json(save_path % 'ref_tweets', orient = 'table')
                     if inc_users:
                         df_users = Timeline.__fix_floats(df_users)
-                        df_users.to_json(save_path % 'authors', orient = 'table')
+                        df_users.to_json(save_path % 'users', orient = 'table')
                     # if inc_media:
                         # df_media.to_json(save_path % 'media', orient = 'table')
                     if has_refs:
