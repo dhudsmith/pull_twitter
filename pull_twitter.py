@@ -115,7 +115,7 @@ if __name__ == "__main__":
     dt_fmt = '%Y-%m-%d %H.%M.%S'
     timestamp = datetime.now().strftime(dt_fmt)
     subcommand_dir = f"{str(config.local.output_dir)}/{args['name']}"
-    output_time_dir = f"{subcommand_dir}/{args['name']}_{timestamp}"
+    output_time_dir = f"{subcommand_dir}/{timestamp}"
     if not os.path.isdir(subcommand_dir):
         os.mkdir(subcommand_dir)
 
