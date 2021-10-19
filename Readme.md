@@ -47,6 +47,8 @@ Using the subcommand `timeline` will collect the tweets in each non-skipped user
 For help information, run the command:
 ```python pull_twitter.py timeline --help```
 
+Note: including the `author_id` extension will also pull user metadata simultaneously with tweets
+
 ### Arguments
 | Full name | Shortened name | Description |
 | --------- | -------------- | ----------- |
@@ -83,6 +85,8 @@ For help information, run the command:
 Using the subcommand `search` will collect tweets that match a provided query string.
 For help information, run the command:
 ```python twitter_pull.py search --help```
+
+Note: including the `author_id` extension will also pull user metadata simultaneously with tweets
 
 ### Arguments
 | Full name | Shortened name | Description | Required? | Default |
