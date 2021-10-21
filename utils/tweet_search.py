@@ -107,16 +107,20 @@ class TweetSearch:
 				if inc_tweets:
 					new_inc_tweets = pd.DataFrame(ref_tweets)
 					df_refs   = pd.concat([df_refs, new_inc_tweets], axis = 0) if df_refs is not None else new_inc_tweets
+					df_refs = df_refs.drop_duplicates(df_refs)
 				if inc_users:
 					new_inc_users = pd.DataFrame(rel_users)
 					df_users  = pd.concat([df_users, pd.DataFrame(rel_users)], axis = 0) if df_users is not None else new_inc_users
+					df_users = df_users.drop_duplicates()
 				# if inc_media:
 				#     new_media = pd.DataFrame(media)
 				#     df_media  = pd.concat([df_media, new_media], axis = 0) if df_media is not None else new_media
+				# 	df_media = df_media.drop_duplicates()
 				if has_refs:
 					new_links = pd.DataFrame(links)
 					df_links  = pd.concat([df_links, new_links], axis = 0) if df_links is not None else new_links
-
+					df_links = df_links.drop_duplicates()
+					
 				# Original tweets dataframe
 				new_tweets = pd.DataFrame(tweets)
 				df_tweets = pd.concat([df_tweets, new_tweets], axis = 0) if df_tweets is not None else new_tweets
