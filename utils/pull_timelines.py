@@ -45,6 +45,7 @@ def pull_timelines(config: TwitterPullConfig, client: Client, user_csv: str,
             timeline.pull(
                 ident=ident,
                 output_dir=output_dir,
+                save_format = config.local.save_format,
                 output_user=output_user,
                 ident_col=search_type,
                 tweets_per_query=tweets_per_query)

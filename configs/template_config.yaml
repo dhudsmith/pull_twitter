@@ -1,5 +1,6 @@
 local:
   output_dir: '<full path to output directory for timeline tweets>'
+  save_format: 'csv' # Currently accepted formats are "csv" and "json"
 twitter:
   account:
     bearer_token: '<your twitter api bearer token>'

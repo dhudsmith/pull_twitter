@@ -16,7 +16,8 @@ def pull_users(config: TwitterPullConfig, client: Client, user_csv: str,
                handle_column: str = None,
                author_id_column: str = None,
                skip_column: str = "skip",
-               use_skip: bool = False):
+               use_skip: bool = False,
+               tweets_per_query: int = 100):
 
     # get search identifiers
     df_users = pd.read_csv(user_csv)
@@ -38,6 +39,7 @@ def pull_users(config: TwitterPullConfig, client: Client, user_csv: str,
     output_dir = str(config.local.output_dir) if not output_dir else output_dir
 
     try:
-        user.pull(ident=search_ident, output_dir=output_dir)
+        user.pull(ident=search_ident, output_dir=output_dir, save_format = config.local.save_format, batch_size = tweets_per_query)
     except Exception as e:
         print(f"Failed to pull user data. Error: ", e)
+

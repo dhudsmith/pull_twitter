@@ -33,21 +33,31 @@ python pull_twitter.py --config_file <path to config yaml file> <subcommand> <su
 
 All data will be saved to the directory indicated by output_dir in the designated config file.  Each subcommand is provided an independent subdirectory to save outputs, and all results are stored in timestamped directories within.
 
+If expansions are designated in the config file, additional output csv's are created to hold the additional data:
+* author_id/referenced_tweets.id.author_id/entities.mentions.username
+	* for tweet-based outputs, this expansion creates a data file "data_users.csv" holding user data
+* referenced_tweets.id
+	* for tweet-based outputs, this expansion creates a data file "data_ref_tweets.csv" holding the tweet data for retweets, replies, and quotes
+	* an additional data file "data_ref_links.csv" is also created holding the relationships between tweets and reference tweets to link the two outputs
+
 Available subcommands and their arguments are detailed below
 ## Fetch User Tweets
 
 Using the subcommand `timeline` will collect the tweets in each non-skipped users' timeline, as indicated by the handles_csv parameter.  A separate subdirectory is created for each non-skipped handle.
+For help information, run the command:
+```python pull_twitter.py timeline --help```
+
+Note: including the `author_id` extension will also pull user metadata simultaneously with tweets
 
 ### Arguments
 | Full name | Shortened name | Description |
 | --------- | -------------- | ----------- |
-| --user-csv | -u | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) |
-| --output-user | -ou | Indicates whether to include handles in timeline outputs |
-| --handle-column | -hc | Name of handles column in handles-csv. Incompatible with author-id-column. |
-| --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. |
-| --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) |
-| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles |
-| --tweets-per-query | -tpq | Number of tweets present in each response from the Twitter API |
+| --user-csv | -u | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
+| --output-user | -ou | Indicates whether to include handles in timeline outputs | No | False |
+| --handle-column | -hc | Name of handles column in handles-csv. Incompatible with author-id-column. | No (mutually exclusive with above) | "handle" |
+| --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. | No (mutually exclusive with above) | "author_id" |
+| --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
+| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No |  |
 
 ### Example
 ```python pull_twitter.py --config-file ./configs/config.yaml timeline -hi "./data/celeb_handle_test.csv" -oh True```
@@ -55,15 +65,17 @@ Using the subcommand `timeline` will collect the tweets in each non-skipped user
 ## Fetch User Data
 
 Using the subcommand `users` will collect profile information connected to each non-skipped user as indicated by the handles_csv parameter.
+For help information, run the command:
+```python pull_twitter.py users --help```
 
 ### Arguments
-| Full name | Shortened name | Description |
-| --------- | -------------- | ----------- |
-| --user-csv | -u | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) |
-| --handle-column | -hc | Name of handles column in handles-csv. Incompatible with author-id-column. |
-| --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. |
-| --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) |
-| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles |
+| Full name | Shortened name | Description | Required? | Default |
+| --------- | -------------- | ----------- | --------- | ------- |
+| --user-csv | -u | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
+| --handle-column | -hc | Name of handles column in handles-csv | No (mutually exclusive with above) | "handle" |
+| --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. | No (mutually exclusive with above) | "author_id" |
+| --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
+| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | False |
 
 ### Example
 ```python pull_twitter.py --config-file ./configs/config.yaml users -hi "./data/celeb_handle_test.csv"```
@@ -71,15 +83,19 @@ Using the subcommand `users` will collect profile information connected to each 
 ## Search Tweets
 
 Using the subcommand `search` will collect tweets that match a provided query string.
+For help information, run the command:
+```python twitter_pull.py search --help```
+
+Note: including the `author_id` extension will also pull user metadata simultaneously with tweets
 
 ### Arguments
-| Full name | Shortened name | Description |
-| --------- | -------------- | ----------- |
-| --query   |       -q       | Query term(s) for searching tweets |
-| --max-response | -mr | Maximum number of tweets to return using query |
-| --start-time | -st | Starting date to search tweets (in format YYYY-MM-DD or isoformat) |
-| --end-time | -et | Ending date to search tweets(in format YYYY-MM-DD or isoformat) |
-| --tweets-per-query | -tpq | Number of tweets present in each response from the Twitter API |
+| Full name | Shortened name | Description | Required? | Default |
+| --------- | -------------- | ----------- | --------- | ------- |
+| --query   |       -q       | Query term(s) for searching tweets | Yes | N/A |
+| --max-response | -mr | Maximum number of tweets to return using query | No | 100 |
+| --start-time | -st | Starting date to search tweets (in format YYYY-MM-DD or isoformat) | No | None |
+| --end-time | -et | Ending date to search tweets(in format YYYY-MM-DD or isoformat) | No | None (Current time) |
+| --tweets-per-query | -tpq | Number of tweets present in each response from the Twitter API | No | 500 |
 
 
 ### Example

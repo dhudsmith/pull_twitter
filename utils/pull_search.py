@@ -30,7 +30,7 @@ def pull_search(config: TwitterPullConfig, client: Client, query: str,
     output_dir = str(config.local.output_dir) if not output_dir else output_dir
 
     try:
-        tweet_search.pull(query, output_dir=output_dir,
+        tweet_search.pull(query, output_dir=output_dir, save_format = config.local.save_format,
             start_time = start_time, end_time = end_time,
             max_results = max_response, batch_size  = tweets_per_query)
     except Exception as e:
