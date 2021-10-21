@@ -5,3 +5,5 @@ configs
 *~
 *.zip
 *.pyc
+build/
+*egg-info/
