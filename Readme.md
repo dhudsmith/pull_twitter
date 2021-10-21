@@ -3,6 +3,7 @@ Clone the repository and navigate into the repository directory.
 
 Create the python virtual environment
 ```bash
+# Note: can alternatively use python3.6 or python3.7
 virtualenv venv -p python3.8
 ```
 
