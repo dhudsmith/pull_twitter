@@ -1,4 +1,6 @@
 import argparse
+import json
+
 import yaml
 import pprint
 import os
@@ -122,7 +124,11 @@ if __name__ == "__main__":
     os.makedirs(output_time_dir)
 
     # Save query metadata
-    copyfile(args['config_file'], f"{output_time_dir}/config.yaml")
+    with open(f"{output_time_dir}/config.yaml", 'w') as f:
+        # go through json to convert secret string
+        config_secret = json.loads(config.json())
+        yaml.dump(config_secret, f)
+
     with open(f"{output_time_dir}/command.txt", "w") as command_file:
         command_file.write(" ".join(sys.argv) + "\n")
 
