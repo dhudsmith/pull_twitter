@@ -31,6 +31,8 @@ From within the repository folder, run the command (substituting the contents wi
 python pull_twitter.py --config_file <path to config yaml file> <subcommand> <subcommand arguments>
 ```
 
+A python interface is also available and detailed below
+
 All data will be saved to the directory indicated by output_dir in the designated config file.  Each subcommand is provided an independent subdirectory to save outputs, and all results are stored in timestamped directories within.
 
 If expansions are designated in the config file, additional output csv's are created to hold the additional data:
@@ -60,7 +62,7 @@ Note: including the `author_id` extension will also pull user metadata simultane
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No |  |
 
 ### Example
-```python pull_twitter.py --config-file ./configs/config.yaml timeline -hi "./data/celeb_handle_test.csv" -oh True```
+```python pull_twitter.py --config-file ./configs/config.yaml timeline -u "./data/celeb_handle_test.csv" -ou True```
 
 ## Fetch User Data
 
@@ -78,7 +80,7 @@ For help information, run the command:
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | False |
 
 ### Example
-```python pull_twitter.py --config-file ./configs/config.yaml users -hi "./data/celeb_handle_test.csv"```
+```python pull_twitter.py --config-file ./configs/config.yaml users -u "./data/celeb_handle_test.csv"```
 
 ## Search Tweets
 
@@ -100,6 +102,29 @@ Note: including the `author_id` extension will also pull user metadata simultane
 
 ### Example
 ```python pull_twitter.py --config-file ./configs/config.yaml search -q COVID19 -mr 50 -st 2021-08-19 -et 2021-08-21```
+
+# Python API
+As an alternative to a command line interface, there is also a python script API with the same functionality.
+
+To use the tool in a python script or notebook, begin with importing the TwitterPullConfig and PullTwitterAPI modules
+```from pull_twitter_api import TwitterPullConfig, PullTwitterAPI```
+
+To initialize the API object, you may create a TwitterPullConfig object or pass a filepath to a configuration yaml file:
+`
+config = TwitterPullConfig.from_file(<config_filepath>)
+api = PullTwitterAPI(config = config)
+`
+Or
+`api = PullTwitterAPI(config_path = <config_filepath>)`
+
+Finally, the three query commands can be called using the api object:
+`
+api.timelines(...)
+api.users(...)
+api.search(...)
+`
+
+An [example notebook](Python_Interface_Example.ipynb) is included to show basic usage of the tool in python.
 
 # Issues or suggested features
 Please post any suggestions as a new issue on github or reach out to me directly.  
