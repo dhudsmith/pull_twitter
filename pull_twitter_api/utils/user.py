@@ -48,7 +48,7 @@ class User:
         print(f"Pulling user information from given handles")
 
         # setup save directory
-        save_path = f"{output_dir}/data.csv"
+        save_path = f"{output_dir}/data_%s.csv"
         print(f"Saving users to {save_path}")
 
         ident_batches = [ident[i:i + batch_size] for i in range(0, len(ident), batch_size)]
@@ -67,23 +67,21 @@ class User:
 
             # insert users into file
             users: List[dict] = response.data
-            includes: List[dict] = response.includes
+            includes: List[dict] = twalc.Includes(**(response.includes))
 
             if users:
                 users = [twalc.User(**user_dict).to_dict() for user_dict in users]
-                if includes:
-                    includes = twalc.Includes(**includes)
 
                 df_users = pd.DataFrame(users)
                 df_tweets = pd.DataFrame(includes.to_dict()['tweets'])
 
                 if save_format == 'csv':
-                    df_users.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL,
+                    df_users.to_csv(save_path % 'users', index=False, quoting=csv.QUOTE_ALL,
                                     header=True)
                     df_tweets.to_csv(save_path % 'pin_tweets.csv', index = False, quoting = csv.QUOTE_ALL,
                                     header = True)
                 elif save_format == 'json':
-                    df_users.to_json(save_path, orient = 'table')
+                    df_users.to_json(save_path % 'users', orient = 'table')
                     df_tweets.to_json(save_path % 'pin_tweets.csv', orient = 'table')
 
                 num_collected += len(users)

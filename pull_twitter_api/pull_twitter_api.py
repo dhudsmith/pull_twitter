@@ -41,9 +41,7 @@ class PullTwitterAPI():
 			self.config = config
 		else:
 			if config_path:
-				self.config = TwitterPullConfig.from_file(config_path)
-			else:
-				raise ValueError("One of config or config_path must be set.")
+				self.load_config(config_path = config_path)
 
 		# Exract important values from config
 		self.query_params = self.config.twitter.query_params
@@ -55,6 +53,14 @@ class PullTwitterAPI():
 		self.client = Client(self.bearer_token, wait_on_rate_limit = True)
 		self.save_format = save_format
 
+	def load_config(self, config = None, config_path = None):
+		if config:
+			self.config = config
+		else:
+			if config_path:
+				self.config = TwitterPullConfig.from_file(config_path)
+			else:
+				raise ValueError("One of config or config_path must be set.")
 
 	def create_output_dir(self, subcomm):
 		"""
@@ -101,6 +107,9 @@ class PullTwitterAPI():
 				-Filepath to the csv containing user handles
 		"""
 
+		if not self.config:
+			raise ValueError("One of config or config_path must be set.")
+
 		output_dir = self.create_output_dir('timeline')
 
 		all_kwargs = dict({'user_csv': user_csv}, **kwargs)
@@ -124,6 +133,9 @@ class PullTwitterAPI():
 				-Filepath to the csv containing user handles
 		"""
 
+		if not self.config:
+			raise ValueError("One of config or config_path must be set.")
+
 		output_dir = self.create_output_dir('users')
 
 		all_kwargs = dict({'user_csv': user_csv}, **kwargs)
@@ -144,6 +156,9 @@ class PullTwitterAPI():
 			-query: str
 				-The search query to filter tweets
 		"""
+
+		if not self.config:
+			raise ValueError("One of config or config_path must be set.")
 
 		output_dir = self.create_output_dir('search')
 

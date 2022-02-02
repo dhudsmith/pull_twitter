@@ -7,15 +7,14 @@ import os
 import sys
 from shutil import copyfile
 from datetime import datetime
-from utils.config_schema import TwitterPullConfig
 from tweepy.client import Client
 
 from pull_twitter_api import PullTwitterAPI
 
 # Subcommand imports
-from utils.pull_timelines import pull_timelines
-from utils.pull_users import pull_users
-from utils.pull_search import pull_search
+# from pull_twitter_api.utils.pull_timelines import pull_timelines
+# from utils.pull_users import pull_users
+# from utils.pull_search import pull_search
 
 if __name__ == "__main__":
 
@@ -112,7 +111,7 @@ if __name__ == "__main__":
     # config.set_environment_vars()
 
     api = PullTwitterAPI(config_path = args['config_file'])
-    print(f"Successfully validated configs in {args['config_file']}. Config: \n {pprint.pformat(config.dict())}")
+    print(f"Successfully validated configs in {args['config_file']}. Config: \n {pprint.pformat(api.config.dict())}")
 
     # tweepy client
     client = Client(bearer_token=os.environ['TW_BEARER_TOKEN'], wait_on_rate_limit=True)

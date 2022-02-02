@@ -129,7 +129,7 @@ class Timeline:
                 df_tweets = pd.concat([df_tweets, new_tweets], axis = 0) if df_tweets is not None else new_tweets
 
                 if output_user:
-                    df_tweets[ident_col] = handle
+                    df_tweets[ident_col] = ident
                 
 
                 if save_format == 'csv':
