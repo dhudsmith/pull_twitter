@@ -5,13 +5,17 @@ https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/ge
 import os
 from tweepy.client import Client
 import pprint
-from utils.config_schema import TwitterPullConfig
-from utils.timeline import Timeline
+from .config_schema import TwitterPullConfig
+from .twitter_schema import LookupQueryParams
+from .timeline import Timeline
 import pandas as pd
 
 
-def pull_timelines(config: TwitterPullConfig, client: Client, user_csv: str,
+def pull_timelines(client: Client, 
+                   query_params: LookupQueryParams,
+                   user_csv: str,
                    output_dir: str = None,
+                   save_format: str = None,
                    handle_column: str = None,
                    author_id_column: str = None,
                    skip_column: str = "skip",
@@ -21,6 +25,8 @@ def pull_timelines(config: TwitterPullConfig, client: Client, user_csv: str,
 
     # get search identifiers
     df_handles = pd.read_csv(user_csv)
+
+
     if use_skip:
         df_handles = df_handles.loc[df_handles[skip_column] != 1]
 
@@ -34,9 +40,7 @@ def pull_timelines(config: TwitterPullConfig, client: Client, user_csv: str,
         raise ValueError("`handle_column` and `author_id_column` are mutually exclusive arguments.")
 
     # set up the timeline
-    timeline = Timeline(client, config.twitter.query_params, search_type)
-
-    output_dir = str(config.local.output_dir) if not output_dir else output_dir
+    timeline = Timeline(client, query_params, search_type)
 
     # Pull the tweets
     for ix, ident in enumerate(search_ident):
@@ -45,7 +49,7 @@ def pull_timelines(config: TwitterPullConfig, client: Client, user_csv: str,
             timeline.pull(
                 ident=ident,
                 output_dir=output_dir,
-                save_format = config.local.save_format,
+                save_format = save_format,
                 output_user=output_user,
                 ident_col=search_type,
                 tweets_per_query=tweets_per_query)

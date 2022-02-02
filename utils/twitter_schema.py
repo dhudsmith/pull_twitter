@@ -16,6 +16,7 @@ class Expansions(Enum):
     in_reply_to_user_id = "in_reply_to_user_id"
     referenced_tweets_id = "referenced_tweets.id"
     referenced_tweets_id_author_id = "referenced_tweets.id.author_id"
+    pinned_tweet_id = "pinned_tweet_id"
 
 
 class MediaFields(Enum):
@@ -91,13 +92,18 @@ class UserFields(Enum):
     withheld = "withheld"
 
 
+
+
+_TWEET_PARAMS = ['author_id', 'conversation_id', 'created_at', 'in_reply_to_user_id', 'lang', 'public_metrics', 'possibly_sensitive', 'referenced_tweets', 'reply_settings', 'source', 'text', 'withheld']
+_USER_PARAMS  = ['created_at', 'description', 'id', 'name', 'public_metrics', 'username', 'pinned_tweet_id']
+
 class LookupQueryParams(BaseModel):
     expansions: Optional[Union[List[Expansions], Expansions]] = None
     media_fields: Optional[Union[List[MediaFields], MediaFields]] = None
     place_fields: Optional[Union[List[PlaceFields], PlaceFields]] = None
     poll_fields: Optional[Union[List[PollFields], PollFields]] = None
-    tweet_fields: Optional[Union[List[TweetFields], TweetFields]] = None
-    user_fields: Optional[Union[List[UserFields], UserFields]] = None
+    tweet_fields: Optional[Union[List[TweetFields], TweetFields]] = _TWEET_PARAMS
+    user_fields: Optional[Union[List[UserFields], UserFields]] = _USER_PARAMS
 
     class Config:
         extra = "forbid"

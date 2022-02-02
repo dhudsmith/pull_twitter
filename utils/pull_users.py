@@ -6,13 +6,17 @@ import os
 from tweepy.client import Client
 import yaml
 import pprint
-from utils.config_schema import TwitterPullConfig
-from utils.user import User
+from .config_schema import TwitterPullConfig
+from .twitter_schema import LookupQueryParams
+from .user import User
 import pandas as pd
 
 
-def pull_users(config: TwitterPullConfig, client: Client, user_csv: str,
+def pull_users(client: Client, 
+               query_params: LookupQueryParams,
+               user_csv: str,
                output_dir: str = None,
+               save_format: str = 'csv',
                handle_column: str = None,
                author_id_column: str = None,
                skip_column: str = "skip",
@@ -34,12 +38,10 @@ def pull_users(config: TwitterPullConfig, client: Client, user_csv: str,
         raise ValueError("`handle_column` and `author_id_column` are mutually exclusive arguments.")
 
     # set up the user object
-    user = User(client, config.twitter.query_params, ident_type)
-
-    output_dir = str(config.local.output_dir) if not output_dir else output_dir
+    user = User(client, query_params, ident_type)
 
     try:
-        user.pull(ident=search_ident, output_dir=output_dir, save_format = config.local.save_format, batch_size = tweets_per_query)
+        user.pull(ident=search_ident, output_dir=output_dir, save_format = save_format, batch_size = tweets_per_query)
     except Exception as e:
         print(f"Failed to pull user data. Error: ", e)
 

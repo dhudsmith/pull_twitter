@@ -6,20 +6,24 @@ import os
 from tweepy.client import Client
 import yaml
 import pprint
-from utils.config_schema import TwitterPullConfig
-from utils.tweet_search import TweetSearch
+from .config_schema import TwitterPullConfig
+from .twitter_schema import LookupQueryParams
+from .tweet_search import TweetSearch
 import pandas as pd
 from datetime import datetime
 
-def pull_search(config: TwitterPullConfig, client: Client, query: str,
+def pull_search(client: Client, 
+    query_params: LookupQueryParams, 
+    query: str,
     output_dir: str = None,
+    save_format: str = 'csv',
     max_response: int = 100,
     start_time: str = None, 
     end_time: str = None,
     tweets_per_query: int = 100):
 
     # set up the timeline
-    tweet_search = TweetSearch(client, config.twitter.query_params)
+    tweet_search = TweetSearch(client, query_params)
 
     #Parse times into datetime objects
     if start_time:
@@ -27,10 +31,8 @@ def pull_search(config: TwitterPullConfig, client: Client, query: str,
     if end_time:
         end_time = datetime.fromisoformat(end_time)
 
-    output_dir = str(config.local.output_dir) if not output_dir else output_dir
-
     try:
-        tweet_search.pull(query, output_dir=output_dir, save_format = config.local.save_format,
+        tweet_search.pull(query, output_dir=output_dir, save_format = save_format,
             start_time = start_time, end_time = end_time,
             max_results = max_response, batch_size  = tweets_per_query)
     except Exception as e:

@@ -12,8 +12,8 @@ from tweepy.tweet import Tweet
 
 import twitteralchemy as twalc
 
-from utils import exceptions
-from utils.twitter_schema import LookupQueryParams
+from . import exceptions
+from .twitter_schema import LookupQueryParams
 
 class TweetSearch:
 	"""
@@ -81,22 +81,23 @@ class TweetSearch:
 
 			# insert tweets into file
 			tweets: List[dict] = response.data
+
+			# includes and expansions extraction
+			includes: List[dict] = twalc.Includes(**(response.includes))
+			ref_tweets, rel_users, inc_media = includes.tweets, includes.users, includes.media
+
+			# reference table
 			has_refs: bool = 'referenced_tweets' in self.query_params.tweet_fields
-			inc_tweets: List[dict] = response.includes['tweets'] if 'tweets' in response.includes.keys() else None
-			inc_users: List[dict] = response.includes['users'] if 'users' in response.includes.keys() else None
-			
-			# TODO: support media objects in twitter-alchemy
-			# inc_media: List[dict] = response.includes['media'] if 'media' in response.includes.keys() else None
 
 			if tweets:
 
 				# Expansions parsing
-				if inc_tweets:
-					ref_tweets = [twalc.Tweet(**tw).to_dict() for tw in inc_tweets]
-				if inc_users:
-					rel_users = [twalc.User(**us).to_dict() for us in inc_users]
-				# if inc_media:
-				#     media = [twalc.Media(**md) for md in inc_media]
+				if ref_tweets:
+					ref_tweets = [tw.to_dict() for tw in ref_tweets]
+				if rel_users:
+					rel_users = [us.to_dict() for us in rel_users]
+				if inc_media:
+					media = [md.to_dict() for md in inc_media]
 				if has_refs:
 					links = TweetSearch.__parse_tweet_links(tweets)
 
@@ -104,18 +105,18 @@ class TweetSearch:
 				tweets = [twalc.Tweet(**tw).to_dict() for tw in tweets]
 
 				# Expansions dataframes
-				if inc_tweets:
+				if ref_tweets:
 					new_inc_tweets = pd.DataFrame(ref_tweets)
 					df_refs   = pd.concat([df_refs, new_inc_tweets], axis = 0) if df_refs is not None else new_inc_tweets
-					df_refs = df_refs.drop_duplicates(df_refs)
-				if inc_users:
+					df_refs = df_refs.drop_duplicates()
+				if rel_users:
 					new_inc_users = pd.DataFrame(rel_users)
 					df_users  = pd.concat([df_users, pd.DataFrame(rel_users)], axis = 0) if df_users is not None else new_inc_users
 					df_users = df_users.drop_duplicates()
-				# if inc_media:
-				#     new_media = pd.DataFrame(media)
-				#     df_media  = pd.concat([df_media, new_media], axis = 0) if df_media is not None else new_media
-				# 	df_media = df_media.drop_duplicates()
+				if inc_media:
+					new_media = pd.DataFrame(media)
+					df_media  = pd.concat([df_media, new_media], axis = 0) if df_media is not None else new_media
+					df_media = df_media.drop_duplicates()
 				if has_refs:
 					new_links = pd.DataFrame(links)
 					df_links  = pd.concat([df_links, new_links], axis = 0) if df_links is not None else new_links
@@ -128,17 +129,17 @@ class TweetSearch:
 				if save_format == 'csv':
 					# Expansions saving
 					# Full referenced tweets data
-					if inc_tweets:
+					if ref_tweets:
 						df_refs.to_csv(save_path % 'ref_tweets', index=False, quoting=csv.QUOTE_ALL,
 									header=True)
 					# Full author user data
-					if inc_users:
+					if rel_users:
 						df_users.to_csv(save_path % 'users', index=False, quoting=csv.QUOTE_ALL,
 									header=True)
 					# Full media data
-					# if inc_media:
-					#     df_media.to_csv(save_path % 'media', index=False, quoting=csv.QUOTE_ALL,
-					#                     header=True)
+					if inc_media:
+						df_media.to_csv(save_path % 'media', index=False, quoting=csv.QUOTE_ALL,
+									header=True)
 					# parent-child links for referenced_tweets
 					if has_refs:
 						df_links.to_csv(save_path % 'ref_links', index=False, quoting = csv.QUOTE_ALL,
@@ -153,11 +154,11 @@ class TweetSearch:
 						df_refs.to_json(save_path % 'ref_tweets', orient = 'table')
 					if inc_users:
 						df_users.to_json(save_path % 'users', orient = 'table')
-					# if inc_media:
-					    # df_media.to_json(save_path % 'media', orient = 'table')
+					if inc_media:
+						df_media.to_json(save_path % 'media', orient = 'table')
 					if has_refs:
 						df_links.to_json(save_path % 'ref_links', orient = 'table')
-					    
+						
 					df_tweets.to_json(save_path, orient = 'table')
 
 				num_collected += len(tweets)

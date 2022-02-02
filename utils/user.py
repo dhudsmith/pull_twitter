@@ -11,8 +11,10 @@ from tweepy.tweet import Tweet
 
 import twitteralchemy as twalc
 
-from utils import exceptions
-from utils.twitter_schema import LookupQueryParams
+# from utils import exceptions
+# from utils.twitter_schema import LookupQueryParams
+from . import exceptions
+from .twitter_schema import LookupQueryParams
 
 
 class User:
@@ -29,7 +31,11 @@ class User:
         self.query_params = query_params
         self.ident_type = ident_type
 
-    def pull(self, ident: Union[List[str], str], output_dir: str, save_format: str = 'csv', batch_size: int = 100):
+    def pull(self, 
+        ident: Union[List[str], str], 
+        output_dir: str, 
+        save_format: str = 'csv', 
+        batch_size: int = 100):
         """
         Lookup the users to get updated follower counts.
         Args:
@@ -61,16 +67,24 @@ class User:
 
             # insert users into file
             users: List[dict] = response.data
+            includes: List[dict] = response.includes
+
             if users:
                 users = [twalc.User(**user_dict).to_dict() for user_dict in users]
+                if includes:
+                    includes = twalc.Includes(**includes)
 
                 df_users = pd.DataFrame(users)
+                df_tweets = pd.DataFrame(includes.to_dict()['tweets'])
 
                 if save_format == 'csv':
                     df_users.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL,
                                     header=True)
+                    df_tweets.to_csv(save_path % 'pin_tweets.csv', index = False, quoting = csv.QUOTE_ALL,
+                                    header = True)
                 elif save_format == 'json':
                     df_users.to_json(save_path, orient = 'table')
+                    df_tweets.to_json(save_path % 'pin_tweets.csv', orient = 'table')
 
                 num_collected += len(users)
                 print(f"\rCollected {num_collected} users", end='')
