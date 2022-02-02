@@ -2,6 +2,8 @@ import os
 import pprint
 import pandas as pd
 from datetime import datetime
+import json
+import yaml
 
 from tweepy.client import Client
 
@@ -55,17 +57,40 @@ class PullTwitterAPI():
 
 
 	def create_output_dir(self, subcomm):
+		"""
+		If they do not exist, create all necessary subdirectories to store data and metadata
+		"""
+
 		# Create output directories
-	    dt_fmt = '%Y-%m-%d %H.%M.%S'
-	    timestamp = datetime.now().strftime(dt_fmt)
-	    subcommand_dir = f"{self.output_dir}/{subcomm}"
-	    output_time_dir = f"{subcommand_dir}/{timestamp}"
-	    if not os.path.isdir(subcommand_dir):
-	        os.mkdir(subcommand_dir)
+		dt_fmt = '%Y-%m-%d %H.%M.%S'
+		timestamp = datetime.now().strftime(dt_fmt)
+		subcommand_dir = f"{self.output_dir}/{subcomm}"
+		output_time_dir = f"{subcommand_dir}/{timestamp}"
+		if not os.path.isdir(subcommand_dir):
+			os.mkdir(subcommand_dir)
 
-	    os.makedirs(output_time_dir)
+		os.makedirs(output_time_dir)
 
-	    return output_time_dir
+		return output_time_dir
+
+	def save_meta(self, output_dir, subcommand = None, **kwargs):
+		"""
+		Store the metadata of the request (config and command parameters)
+		"""
+
+		# Config storing
+		with open(f"{output_dir}/config.yaml", 'w') as f:
+			# go through json to convert secret string
+			config_secret = json.loads(self.config.json())
+			yaml.dump(config_secret, f)
+
+
+		# Parameter storing
+		command = f"Python interface - {subcommand}\n" + '\n'.join([f"{key} : {value}" for key, value in kwargs.items()])
+
+		with open(f"{output_dir}/params.txt", "w") as pf:
+			pf.write(command)
+
 
 	def timelines(self, user_csv: str, **kwargs) -> None:
 		"""
@@ -78,12 +103,17 @@ class PullTwitterAPI():
 
 		output_dir = self.create_output_dir('timeline')
 
+		all_kwargs = dict({'user_csv': user_csv}, **kwargs)
+		self.save_meta(output_dir, subcommand = 'timeline', **all_kwargs)
+
 		pull_timelines(self.client, 
 			self.query_params, 
 			user_csv,
 			save_format = self.save_format,
 			output_dir = output_dir, 
 			**kwargs)
+
+
 
 	def users(self, user_csv: str, **kwargs) -> None:
 		"""
@@ -95,6 +125,9 @@ class PullTwitterAPI():
 		"""
 
 		output_dir = self.create_output_dir('users')
+
+		all_kwargs = dict({'user_csv': user_csv}, **kwargs)
+		self.save_meta(output_dir, subcommand = 'timeline', **all_kwargs)
 
 		pull_users(self.client, 
 			self.query_params, 
@@ -113,6 +146,9 @@ class PullTwitterAPI():
 		"""
 
 		output_dir = self.create_output_dir('search')
+
+		all_kwargs = dict({'query': query}, **kwargs)
+		self.save_meta(output_dir, subcommand = 'timeline', **all_kwargs)
 
 		pull_search(self.client, 
 			self.query_params, 
