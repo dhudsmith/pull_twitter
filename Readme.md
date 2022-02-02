@@ -52,14 +52,14 @@ For help information, run the command:
 Note: including the `author_id` extension will also pull user metadata simultaneously with tweets
 
 ### Arguments
-| Full name | Shortened name | Description |
-| --------- | -------------- | ----------- |
+| Full name | Shortened name | Description | Required? | Default |
+| --------- | -------------- | ----------- | --------- | ------- |
 | --user-csv | -u | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
 | --output-user | -ou | Indicates whether to include handles in timeline outputs | No | False |
 | --handle-column | -hc | Name of handles column in handles-csv. Incompatible with author-id-column. | No (mutually exclusive with above) | "handle" |
 | --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. | No (mutually exclusive with above) | "author_id" |
 | --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
-| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No |  |
+| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | False |
 
 ### Example
 ```python pull_twitter.py --config-file ./configs/config.yaml timeline -u "./data/celeb_handle_test.csv" -ou True```
@@ -104,8 +104,10 @@ Note: including the `author_id` extension will also pull user metadata simultane
 ```python pull_twitter.py --config-file ./configs/config.yaml search -q COVID19 -mr 50 -st 2021-08-19 -et 2021-08-21```
 
 # Python API
+
 As an alternative to a command line interface, there is also a python script API with the same functionality.
 
+## Guide
 To use the tool in a python script or notebook, begin with importing the TwitterPullConfig and PullTwitterAPI modules
 ```from pull_twitter_api import TwitterPullConfig, PullTwitterAPI```
 
@@ -125,6 +127,41 @@ api.search(...)
 `
 
 An [example notebook](Python_Interface_Example.ipynb) is included to show basic usage of the tool in python.
+
+## API
+Arguments through the python API mimic those of the command line interface
+
+### PullTwitterAPI.timelines()
+| Arg name | Description | Required? | Default |
+| --------- | ----------- | --------- | ------- |
+| user_csv | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
+| save_format | Option ('csv' or 'json') to save results as csv file or json | No | 'csv' |
+| output_user | Indicates whether to include handles in timeline outputs | No | False |
+| handle-column | Name of handles column in handles-csv. Incompatible with author-id-column. | No (mutually exclusive with above) | "handle" |
+| author_id_column | Name of handles column in handles-csv. Incompatible with handle-column. | No (mutually exclusive with above) | "author_id" |
+| skip_column | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
+| use_skip | Indicates whether to use the skip column to ignore specific handles | No | False |
+
+### PullTwitterAPI.users()
+| Arg name | Description | Required? | Default |
+| --------- | ----------- | --------- | ------- |
+| user_csv | CSV containing handles of users to pull timelines for (see data/celeb_handle_test.csv for example) | Yes | N/A |
+| save_format | Option ('csv' or 'json') to save results as csv file or json | No | 'csv' |
+| handle_column | Name of handles column in handles-csv | No (mutually exclusive with above) | "handle" |
+| author_id_column | Name of handles column in handles-csv. Incompatible with handle-column. | No (mutually exclusive with above) | "author_id" |
+| skip_column | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
+| use_skip | Indicates whether to use the skip column to ignore specific handles | No | False |
+
+### PullTwitterAPI.search()
+
+| Arg name | Description | Required? | Default |
+| --------- | ----------- | --------- | ------- |
+| query   | Query term(s) for searching tweets | Yes | N/A |
+| max_response | Maximum number of tweets to return using query | No | 100 |
+| start_time | Starting date to search tweets (in format YYYY-MM-DD or isoformat) | No | None |
+| end_time | Ending date to search tweets(in format YYYY-MM-DD or isoformat) | No | None (Current time) |
+| tweets_per_query | Number of tweets present in each response from the Twitter API | No | 500 |
+
 
 # Issues or suggested features
 Please post any suggestions as a new issue on github or reach out to me directly.  

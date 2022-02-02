@@ -16,7 +16,9 @@ from .utils.pull_search import pull_search
 
 
 class PullTwitterAPI():
-
+	'''
+	Python interface class for tool usage within python scripts and notebooks
+	'''
 
 	def __init__(self, 
 		config: TwitterPullConfig = None,
@@ -26,8 +28,6 @@ class PullTwitterAPI():
 		Constructor for PullTwitterAPI
 
 		Parameters:
-			-bearer_token: str
-				-Bearer token for Twitter API
 			-config: TwitterPullConfig
 				-Initialized configuration object for queries
 			-config_path: str
@@ -53,7 +53,21 @@ class PullTwitterAPI():
 		self.client = Client(self.bearer_token, wait_on_rate_limit = True)
 		self.save_format = save_format
 
-	def load_config(self, config = None, config_path = None):
+	# Configuration and directory setup
+	
+	def load_config(self, 
+		config: TwitterPullConfig = None, 
+		config_path: str = None) -> None:
+		"""
+		Load or change the api configuration file
+
+		Parameters:
+			-config: TwitterPullConfig
+				An instantiated configuration object
+			-config_path: str
+				Filepath to a configuration yaml file
+		"""
+
 		if config:
 			self.config = config
 		else:
@@ -62,9 +76,13 @@ class PullTwitterAPI():
 			else:
 				raise ValueError("One of config or config_path must be set.")
 
-	def create_output_dir(self, subcomm):
+	def create_output_dir(self, subcomm: str) -> None:
 		"""
 		If they do not exist, create all necessary subdirectories to store data and metadata
+
+		Parameters:
+			-subcomm: str
+				-Subcommand (timeline, users, search) called
 		"""
 
 		# Create output directories
@@ -79,9 +97,18 @@ class PullTwitterAPI():
 
 		return output_time_dir
 
-	def save_meta(self, output_dir, subcommand = None, **kwargs):
+	def save_meta(self, 
+		output_dir: str, 
+		subcommand: str = None, 
+		**kwargs) -> None:
 		"""
 		Store the metadata of the request (config and command parameters)
+
+		Parameters:
+			-output_dir: str
+				Directory where response data should be saved
+			-subcommand: str
+				Subcommand (timeline, users, search) called
 		"""
 
 		# Config storing
@@ -97,6 +124,8 @@ class PullTwitterAPI():
 		with open(f"{output_dir}/params.txt", "w") as pf:
 			pf.write(command)
 
+
+	# Subcommands
 
 	def timelines(self, user_csv: str, **kwargs) -> None:
 		"""
@@ -121,8 +150,6 @@ class PullTwitterAPI():
 			save_format = self.save_format,
 			output_dir = output_dir, 
 			**kwargs)
-
-
 
 	def users(self, user_csv: str, **kwargs) -> None:
 		"""
