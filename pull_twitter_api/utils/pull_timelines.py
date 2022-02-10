@@ -4,16 +4,19 @@ https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/ge
 """
 import os
 from tweepy.client import Client
+import yaml
 import pprint
 from .config_schema import TwitterPullConfig
 from .twitter_schema import LookupQueryParams
 from .timeline import Timeline
+from .pull_twitter_response import TimelineResponse
 import pandas as pd
 
 
 def pull_timelines(client: Client, 
                    query_params: LookupQueryParams,
                    user_csv: str,
+                   api_response: TimelineResponse = None,
                    output_dir: str = None,
                    save_format: str = None,
                    handle_column: str = None,
@@ -41,17 +44,20 @@ def pull_timelines(client: Client,
 
     # set up the timeline
     timeline = Timeline(client, query_params, search_type)
+    response = TimelineResponse()
 
     # Pull the tweets
     for ix, ident in enumerate(search_ident):
         print(f"Processing handle {ix + 1}/{len(search_ident)}")
         try:
-            timeline.pull(
+            response = timeline.pull(
                 ident=ident,
                 output_dir=output_dir,
+                api_response = api_response,
                 save_format = save_format,
                 output_user=output_user,
                 ident_col=search_type,
                 tweets_per_query=tweets_per_query)
         except Exception as e:
             print(f"Failed to pull timeline for {search_type} {ident}. Error: ", e)
+    return response

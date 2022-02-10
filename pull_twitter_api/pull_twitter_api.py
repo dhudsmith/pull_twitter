@@ -12,6 +12,7 @@ from .utils.timeline import Timeline
 from .utils.pull_timelines import pull_timelines
 from .utils.pull_users import pull_users
 from .utils.pull_search import pull_search
+from .utils.pull_twitter_response import PullTwitterResponse, TimelineResponse, SearchResponse, UserResponse
 
 
 
@@ -73,29 +74,9 @@ class PullTwitterAPI():
 		else:
 			if config_path:
 				self.config = TwitterPullConfig.from_file(config_path)
+				self.query_params = self.config.twitter.query_params
 			else:
 				raise ValueError("One of config or config_path must be set.")
-
-	def create_output_dir(self, subcomm: str) -> None:
-		"""
-		If they do not exist, create all necessary subdirectories to store data and metadata
-
-		Parameters:
-			-subcomm: str
-				-Subcommand (timeline, users, search) called
-		"""
-
-		# Create output directories
-		dt_fmt = '%Y-%m-%d %H.%M.%S'
-		timestamp = datetime.now().strftime(dt_fmt)
-		subcommand_dir = f"{self.output_dir}/{subcomm}"
-		output_time_dir = f"{subcommand_dir}/{timestamp}"
-		if not os.path.isdir(subcommand_dir):
-			os.mkdir(subcommand_dir)
-
-		os.makedirs(output_time_dir)
-
-		return output_time_dir
 
 	def save_meta(self, 
 		output_dir: str, 
@@ -127,7 +108,7 @@ class PullTwitterAPI():
 
 	# Subcommands
 
-	def timelines(self, user_csv: str, **kwargs) -> None:
+	def timelines(self, user_csv: str, auto_save = False, **kwargs) -> None:
 		"""
 		Pull timelines of users listed in the passed user_csv
 
@@ -139,19 +120,25 @@ class PullTwitterAPI():
 		if not self.config:
 			raise ValueError("One of config or config_path must be set.")
 
-		output_dir = self.create_output_dir('timeline')
+		c_kwargs = dict({'user_csv': user_csv}, **kwargs)
+		timeline_response = TimelineResponse(
+			auto_save = auto_save,
+			output_dir = self.output_dir,
+			config = self.config,
+			command_dict = c_kwargs
+		)
 
-		all_kwargs = dict({'user_csv': user_csv}, **kwargs)
-		self.save_meta(output_dir, subcommand = 'timeline', **all_kwargs)
-
-		pull_timelines(self.client, 
+		timeline_response = pull_timelines(
+			self.client, 
 			self.query_params, 
 			user_csv,
-			save_format = self.save_format,
-			output_dir = output_dir, 
+			api_response = timeline_response,
+			output_dir = self.output_dir,
 			**kwargs)
 
-	def users(self, user_csv: str, **kwargs) -> None:
+		return timeline_response
+
+	def users(self, user_csv: str, auto_save = False, **kwargs) -> None:
 		"""
 		Pull user information for users listed in the passed user_csv
 
@@ -163,19 +150,27 @@ class PullTwitterAPI():
 		if not self.config:
 			raise ValueError("One of config or config_path must be set.")
 
-		output_dir = self.create_output_dir('users')
+		c_kwargs = dict({'user_csv': user_csv}, **kwargs)
+		user_response = UserResponse(
+			auto_save = auto_save,
+			output_dir = self.output_dir,
+			config = self.config,
+			command_dict = c_kwargs
+		)
 
-		all_kwargs = dict({'user_csv': user_csv}, **kwargs)
-		self.save_meta(output_dir, subcommand = 'timeline', **all_kwargs)
 
-		pull_users(self.client, 
+		user_response = pull_users(
+			self.client, 
 			self.query_params, 
 			user_csv,
-			# save_format = self.save_format,
-			output_dir = output_dir, 
+			api_response = user_response,
+			output_dir = self.output_dir,
 			**kwargs)
 
-	def search(self, query: str, **kwargs) -> None:
+
+		return user_response
+
+	def search(self, query: str, auto_save = False, **kwargs) -> None:
 		"""
 		Pull tweets satisyfing the given query
 
@@ -185,16 +180,25 @@ class PullTwitterAPI():
 		"""
 
 		if not self.config:
-			raise ValueError("One of config or config_path must be set.")
+			raise ValueError("One of [config or config_path] must be set.")
 
-		output_dir = self.create_output_dir('search')
+		# Initialize api response to update
+		c_kwargs = dict({'query': query}, **kwargs)
+		search_response = SearchResponse(
+			auto_save = auto_save,
+			save_format = self.save_format,
+			output_dir = self.output_dir,
+			config = self.config,
+			command_dict = c_kwargs
+		)
 
-		all_kwargs = dict({'query': query}, **kwargs)
-		self.save_meta(output_dir, subcommand = 'timeline', **all_kwargs)
-
-		pull_search(self.client, 
+		# Query Twitter API for search results
+		search_response = pull_search(
+			self.client, 
 			self.query_params, 
 			query,
-			save_format = self.save_format,
-			output_dir = output_dir, 
+			api_response = search_response,
+			output_dir = self.output_dir,
 			**kwargs)
+
+		return search_response

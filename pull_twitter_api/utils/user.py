@@ -15,6 +15,7 @@ import twitteralchemy as twalc
 # from utils.twitter_schema import LookupQueryParams
 from . import exceptions
 from .twitter_schema import LookupQueryParams
+from .pull_twitter_response import PullTwitterResponse, UserResponse
 
 
 class User:
@@ -32,8 +33,10 @@ class User:
         self.ident_type = ident_type
 
     def pull(self, 
-        ident: Union[List[str], str], 
-        output_dir: str, 
+        ident: Union[List[str], str],
+        api_response: UserResponse = None,
+        auto_save: bool = False,
+        output_dir: str = None, 
         save_format: str = 'csv', 
         batch_size: int = 100):
         """
@@ -47,12 +50,14 @@ class User:
 
         print(f"Pulling user information from given handles")
 
-        # setup save directory
-        save_path = f"{output_dir}/data_%s.csv"
-        print(f"Saving users to {save_path}")
-
         ident_batches = [ident[i:i + batch_size] for i in range(0, len(ident), batch_size)]
         num_collected = 0
+
+        # Initialize API Response
+        if api_response is None:
+            api_response = UserResponse(auto_save = auto_save,
+                save_format = save_format,
+                output_dir = output_dir)
 
         for ident_batch in ident_batches:
             try:
@@ -65,27 +70,22 @@ class User:
                       f"count data. Exception message: {e}")
                 continue
 
-            # insert users into file
+            # users extraction
             users: List[dict] = response.data
+
+            # includes and expansions extraction
             includes: List[dict] = twalc.Includes(**(response.includes))
+            ref_tweets = includes.tweets
 
             if users:
                 users = [twalc.User(**user_dict).to_dict() for user_dict in users]
+                tweets = [tw.to_dict() for tw in ref_tweets] if ref_tweets else None
 
-                df_users = pd.DataFrame(users)
-                df_tweets = pd.DataFrame(includes.to_dict()['tweets'])
-
-                if save_format == 'csv':
-                    df_users.to_csv(save_path % 'users', index=False, quoting=csv.QUOTE_ALL,
-                                    header=True)
-                    df_tweets.to_csv(save_path % 'pin_tweets.csv', index = False, quoting = csv.QUOTE_ALL,
-                                    header = True)
-                elif save_format == 'json':
-                    df_users.to_json(save_path % 'users', orient = 'table')
-                    df_tweets.to_json(save_path % 'pin_tweets.csv', orient = 'table')
+                api_response.append_data(new_users = users, new_tweets = tweets)
 
                 num_collected += len(users)
                 print(f"\rCollected {num_collected} users", end='')
+        return api_response
 
     def get_users_data(self, ident: Union[List[str], str]):
 

@@ -114,7 +114,7 @@ if __name__ == "__main__":
     print(f"Successfully validated configs in {args['config_file']}. Config: \n {pprint.pformat(api.config.dict())}")
 
     # tweepy client
-    client = Client(bearer_token=os.environ['TW_BEARER_TOKEN'], wait_on_rate_limit=True)
+    # client = Client(bearer_token=os.environ['TW_BEARER_TOKEN'], wait_on_rate_limit=True)
 
     # Create output directories
     # dt_fmt = '%Y-%m-%d %H.%M.%S'

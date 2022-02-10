@@ -8,6 +8,7 @@ from pydantic import BaseModel
 # https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
 
 class Expansions(Enum):
+    # Tweet expansions
     attachments_poll_ids = "attachments.poll_ids"
     attachments_media_keys = "attachments.media_keys"
     author_id = "author_id"
@@ -16,6 +17,8 @@ class Expansions(Enum):
     in_reply_to_user_id = "in_reply_to_user_id"
     referenced_tweets_id = "referenced_tweets.id"
     referenced_tweets_id_author_id = "referenced_tweets.id.author_id"
+
+    # User expansions
     pinned_tweet_id = "pinned_tweet_id"
 
 
@@ -108,4 +111,3 @@ class LookupQueryParams(BaseModel):
     class Config:
         extra = "forbid"
         use_enum_values = True
-        

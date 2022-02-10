@@ -9,12 +9,14 @@ import pprint
 from .config_schema import TwitterPullConfig
 from .twitter_schema import LookupQueryParams
 from .user import User
+from .pull_twitter_response import UserResponse
 import pandas as pd
 
 
 def pull_users(client: Client, 
                query_params: LookupQueryParams,
                user_csv: str,
+               api_response: UserResponse = None,
                output_dir: str = None,
                save_format: str = 'csv',
                handle_column: str = None,
@@ -41,7 +43,14 @@ def pull_users(client: Client,
     user = User(client, query_params, ident_type)
 
     try:
-        user.pull(ident=search_ident, output_dir=output_dir, save_format = save_format, batch_size = tweets_per_query)
+        response = user.pull(
+            ident=search_ident, 
+            api_response = api_response,
+            output_dir=output_dir, 
+            save_format = save_format, 
+            batch_size = tweets_per_query)
+        return response
     except Exception as e:
         print(f"Failed to pull user data. Error: ", e)
+        return None
 
