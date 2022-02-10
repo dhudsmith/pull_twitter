@@ -173,8 +173,6 @@ class SingleTimelineResponse(PullTwitterResponse):
 
 		self.has_saved = True
 
-
-
 class TimelineResponse(PullTwitterResponse):
 	"""
 	API Response from calling a timeline-based subcommand
@@ -219,8 +217,6 @@ class TimelineResponse(PullTwitterResponse):
 			response.save(user_out_dir = user_out_dir, save_format = self.save_format)
 
 
-
-
 class SearchResponse(PullTwitterResponse):
 	"""
 	API Response from calling a search-based subcommand
@@ -263,6 +259,51 @@ class SearchResponse(PullTwitterResponse):
 		super(SearchResponse, self)._save_df(self.df_users, self.output_dir, 'users', self.save_format)
 		super(SearchResponse, self)._save_df(self.df_tweets, self.output_dir, 'tweets', self.save_format)
 		super(SearchResponse, self)._save_df(self.df_media, self.output_dir, 'media', self.save_format)
+
+
+class LookupResponse(PullTwitterResponse):
+	"""
+	API Response from calling a search-based subcommand
+	"""
+
+
+	IDENT = 'lookup'
+
+	def __init__(self, *args, **kwargs):
+		super(LookupResponse, self).__init__(**kwargs)
+
+		self.df_links = None
+		self.df_refs = None
+		self.df_users = None
+		self.df_tweets = None
+		self.df_media = None
+
+
+	def append_data(self, 
+		new_links = None,
+		new_refs = None,
+		new_users = None,
+		new_tweets = None,
+		new_media = None):
+
+		self.df_links  = super(LookupResponse, self)._update_df(self.df_links, new_links)
+		self.df_refs   = super(LookupResponse, self)._update_df(self.df_refs, new_refs)
+		self.df_users  = super(LookupResponse, self)._update_df(self.df_users, new_users)
+		self.df_tweets = super(LookupResponse, self)._update_df(self.df_tweets, new_tweets)
+		self.df_media  = super(LookupResponse, self)._update_df(self.df_media, new_media)
+
+		if self.auto_save:
+			self.save()
+
+	def save(self, output_dir = None):
+		super(LookupResponse, self).save(output_dir = output_dir)
+
+		super(LookupResponse, self)._save_df(self.df_links, self.output_dir, 'links', self.save_format)
+		super(LookupResponse, self)._save_df(self.df_refs, self.output_dir, 'refs', self.save_format)
+		super(LookupResponse, self)._save_df(self.df_users, self.output_dir, 'users', self.save_format)
+		super(LookupResponse, self)._save_df(self.df_tweets, self.output_dir, 'tweets', self.save_format)
+		super(LookupResponse, self)._save_df(self.df_media, self.output_dir, 'media', self.save_format)
+
 
 class UserResponse(PullTwitterResponse):
 	"""

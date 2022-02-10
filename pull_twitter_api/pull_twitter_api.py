@@ -12,7 +12,8 @@ from .utils.timeline import Timeline
 from .utils.pull_timelines import pull_timelines
 from .utils.pull_users import pull_users
 from .utils.pull_search import pull_search
-from .utils.pull_twitter_response import PullTwitterResponse, TimelineResponse, SearchResponse, UserResponse
+from .utils.pull_lookup import pull_lookup
+from .utils.pull_twitter_response import PullTwitterResponse, TimelineResponse, SearchResponse, UserResponse, LookupResponse
 
 
 
@@ -197,6 +198,39 @@ class PullTwitterAPI():
 			self.client, 
 			self.query_params, 
 			query,
+			api_response = search_response,
+			output_dir = self.output_dir,
+			**kwargs)
+
+		return search_response
+
+	def lookup(self, id_csv: str, auto_save = False, **kwargs) -> None:
+		"""
+		Pull tweets satisyfing the given query
+
+		Parameters:
+			-id_csv: str
+				-A csv with a list of Ids to fetch tweets for
+		"""
+
+		if not self.config:
+			raise ValueError("One of [config or config_path] must be set.")
+
+		# Initialize api response to update
+		c_kwargs = dict({'id_csv': id_csv}, **kwargs)
+		search_response = LookupResponse(
+			auto_save = auto_save,
+			save_format = self.save_format,
+			output_dir = self.output_dir,
+			config = self.config,
+			command_dict = c_kwargs
+		)
+
+		# Query Twitter API for search results
+		search_response = pull_lookup(
+			self.client, 
+			self.query_params, 
+			id_csv,
 			api_response = search_response,
 			output_dir = self.output_dir,
 			**kwargs)
