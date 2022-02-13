@@ -49,7 +49,6 @@ if __name__ == "__main__":
         help="Number of tweets present in each response from the Twitter API",
         default=100)
     parser_timeline.set_defaults(name="timeline")
-    # parser_timeline.set_defaults(func=pull_timelines)
 
 
     # Users subcommand -----------------------------------------------------------------------
@@ -75,7 +74,6 @@ if __name__ == "__main__":
         help="Number of tweets present in each resposne from the Twitter API", required = False,
         default = 100)
     parser_users.set_defaults(name="users")
-    # parser_users.set_defaults(func=pull_users)
 
 
     # Query subcommand -----------------------------------------------------------------------
@@ -97,58 +95,44 @@ if __name__ == "__main__":
         help="Number of tweets present in each response from the Twitter API", required = False,
         default = 500)
     parser_search.set_defaults(name="search")
-    # parser_search.set_defaults(func=pull_search)
+
+    # Lookup subcommand -----------------------------------------------------------------------
+    parser_search    = subparsers.add_parser("search", aliases=["s"], 
+        help = 'Pull tweets based on a given query',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser_search.add_argument("-i", "--id_csv", type=str, 
+        help="CSV containing list of tweet ids", required = True)
+    parser_search.add_argument("-ic", "--id_col", type=str,
+        help="Name of column containing ids in id_csv", required = False)
+    parser_search.add_argument("-tpq", "--tweets-per-query", type=int, 
+        help="Number of tweets present in each response from the Twitter API", required = False,
+        default = 500)
+    parser_search.set_defaults(name="search")
+
 
     # Extract the command line arguments
     args = vars(parser.parse_args())
 
-    # API setup and configuration
 
-    # Load configuration
-    # with open(args['config_file'], 'r') as f:
-    #     config_yml = yaml.load(f, Loader=yaml.FullLoader)
-    # config = TwitterPullConfig(**config_yml)
-    # config.set_environment_vars()
+
+    # API Setup and Configuration
 
     api = PullTwitterAPI(config_path = args['config_file'])
     print(f"Successfully validated configs in {args['config_file']}. Config: \n {pprint.pformat(api.config.dict())}")
-
-    # tweepy client
-    # client = Client(bearer_token=os.environ['TW_BEARER_TOKEN'], wait_on_rate_limit=True)
-
-    # Create output directories
-    # dt_fmt = '%Y-%m-%d %H.%M.%S'
-    # timestamp = datetime.now().strftime(dt_fmt)
-    # subcommand_dir = f"{str(config.local.output_dir)}/{args['name']}"
-    # output_time_dir = f"{subcommand_dir}/{timestamp}"
-    # if not os.path.isdir(subcommand_dir):
-    #     os.mkdir(subcommand_dir)
-
-    # os.makedirs(output_time_dir)
-
-    # Save query metadata
-    # with open(f"{output_time_dir}/config.yaml", 'w') as f:
-    #     # go through json to convert secret string
-    #     config_secret = json.loads(config.json())
-    #     yaml.dump(config_secret, f)
-
-    # with open(f"{output_time_dir}/command.txt", "w") as command_file:
-    #     command_file.write(" ".join(sys.argv) + "\n")
 
     # Clean command keyword arguments
     sc_name = args['name']
     ignore_args = ['config_file', 'name', 'output_dir']
     command_kwargs = {key: value for key, value in args.items() if (not key in ignore_args) and (value)}
-    # command_kwargs['output_dir'] = output_time_dir
-
-    # Run the application with parsed configuration and initialized client
-    # args['func'](config, client, **command_kwargs)
 
     func_dict = {
         'timeline': api.timelines,
         'users': api.users,
         'search': api.search,
+        'lookup': api.lookup,
     }
-    func_dict[sc_name](**command_kwargs)
+
+    print(command_kwargs)
+    _ = func_dict[sc_name](auto_save = True, **command_kwargs)
 
     print("\n")
