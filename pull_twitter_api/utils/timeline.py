@@ -109,7 +109,7 @@ class Timeline:
                 tweets = [twalc.Tweet(**tw).to_dict() for tw in tweets]
                         
                 # Update response object
-                api_response.append_data(ident,
+                api_response.update_data(ident,
                     new_links = links,
                     new_refs = ref_tweets,
                     new_users = rel_users,

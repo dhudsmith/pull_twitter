@@ -21,6 +21,7 @@ class PullTwitterResponse(object):
 
 	def __init__(self,
 		auto_save = False,
+		create_dirs = True,
 		save_format = 'csv',
 		output_dir = None,
 		retrieved_dt = None,
@@ -28,6 +29,7 @@ class PullTwitterResponse(object):
 		command_dict = None):
 
 		self.auto_save = auto_save
+		self.create_dirs = create_dirs
 		self.save_format = save_format
 		self.output_dir = output_dir
 		self.retrieved_dt = datetime.now() if retrieved_dt is None else retrieved_dt
@@ -35,11 +37,12 @@ class PullTwitterResponse(object):
 		self.command_dict = command_dict
 
 		self.has_saved = False
+
 		if auto_save:
 			PullTwitterResponse.save(self, command_dict)
 
 	@abc.abstractmethod
-	def append_data(self, **kwargs):
+	def update_data(self, **kwargs):
 		"""
 		Update data held in response
 		"""
@@ -54,7 +57,7 @@ class PullTwitterResponse(object):
 		if self.output_dir is None:
 			self.output_dir = output_dir
 
-		if not self.has_saved:
+		if not self.has_saved and self.create_dirs:
 			# create output directories if needed
 			self.create_output_dir()
 			self.save_meta()
@@ -107,26 +110,29 @@ class PullTwitterResponse(object):
 	# Static utility methods
 
 	@staticmethod
-	def _update_df(df: pd.DataFrame, new_data: list) -> pd.DataFrame:
+	def _update_df(df: pd.DataFrame, new_data: list, append: bool = False) -> pd.DataFrame:
 		if new_data:
 			new_data_df = pd.DataFrame(new_data)
-			new_df = pd.concat([df, new_data_df], axis = 0) if df is not None else new_data_df
-			new_df = new_df.drop_duplicates()
+			
+			if append:
+				return new_data_df
+			else:
+				new_df = pd.concat([df, new_data_df], axis = 0) if df is not None else new_data_df
+				new_df = new_df.drop_duplicates()
 
-			return new_df
-		else:
-			return None
+				return new_df
+		return None
 
 	@staticmethod
-	def _save_df(df: pd.DataFrame, output_dir, fn_suffix, save_format) -> None:
+	def _save_df(df: pd.DataFrame, output_dir, fn_suffix, save_format, append: bool = False) -> None:
 		save_path = f"{output_dir}/data_{fn_suffix}.{save_format}"
 
 		if df is not None:
 			if save_format == 'csv':
 				df.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL,
-                                        header=True)
+                                        header=True, mode = 'a' if append else 'w')
 			elif save_format == 'json':
-				df.to_json(save_path, orient = 'table')
+				df.to_json(save_path, orient = 'table', mode = 'a' if append else 'w')
 
 	@staticmethod
 	def _create_result_subdir(subdir_name, output_dir = None):
@@ -139,7 +145,7 @@ class SingleTimelineResponse(PullTwitterResponse):
 
 
 	def __init__(self, *args, **kwargs):
-
+		super(SingleTimelineResponse, self).__init__(create_dirs = False, **kwargs)
 
 		self.user = None
 		self.df_links = None
@@ -150,26 +156,26 @@ class SingleTimelineResponse(PullTwitterResponse):
 
 		self.has_saved = False
 
-	def append_data(self, 
+	def update_data(self, 
 		new_links = None,
 		new_refs = None,
 		new_users = None,
 		new_tweets = None,
 		new_media = None):
 
-		self.df_links  = PullTwitterResponse._update_df(self.df_links, new_links)
-		self.df_refs   = PullTwitterResponse._update_df(self.df_refs, new_refs)
-		self.df_users  = PullTwitterResponse._update_df(self.df_users, new_users)
-		self.df_tweets = PullTwitterResponse._update_df(self.df_tweets, new_tweets)
-		self.df_media  = PullTwitterResponse._update_df(self.df_media, new_media)
+		self.df_links  = PullTwitterResponse._update_df(self.df_links, new_links, append = self.auto_save)
+		self.df_refs   = PullTwitterResponse._update_df(self.df_refs, new_refs, append = self.auto_save)
+		self.df_users  = PullTwitterResponse._update_df(self.df_users, new_users, append = self.auto_save)
+		self.df_tweets = PullTwitterResponse._update_df(self.df_tweets, new_tweets, append = self.auto_save)
+		self.df_media  = PullTwitterResponse._update_df(self.df_media, new_media, append = self.auto_save)
 
 	def save(self, user_out_dir = None, save_format = 'csv'):
 
-		PullTwitterResponse._save_df(self.df_links, user_out_dir, 'links', save_format)
-		PullTwitterResponse._save_df(self.df_refs, user_out_dir, 'refs', save_format)
-		PullTwitterResponse._save_df(self.df_users, user_out_dir, 'users', save_format)
-		PullTwitterResponse._save_df(self.df_tweets, user_out_dir, 'tweets', save_format)
-		PullTwitterResponse._save_df(self.df_media, user_out_dir, 'media', save_format)
+		PullTwitterResponse._save_df(self.df_links, user_out_dir, 'links', save_format, append = self.auto_save)
+		PullTwitterResponse._save_df(self.df_refs, user_out_dir, 'refs', save_format, append = self.auto_save)
+		PullTwitterResponse._save_df(self.df_users, user_out_dir, 'users', save_format, append = self.auto_save)
+		PullTwitterResponse._save_df(self.df_tweets, user_out_dir, 'tweets', save_format, append = self.auto_save)
+		PullTwitterResponse._save_df(self.df_media, user_out_dir, 'media', save_format, append = self.auto_save)
 
 		self.has_saved = True
 
@@ -185,7 +191,7 @@ class TimelineResponse(PullTwitterResponse):
 		self.timelines = {}
 
 
-	def append_data(self, 
+	def update_data(self, 
 		user = None,
 		new_links = None,
 		new_refs = None,
@@ -194,14 +200,14 @@ class TimelineResponse(PullTwitterResponse):
 		new_media = None):
 
 		if user not in self.timelines.keys():
-			self.timelines[user] = SingleTimelineResponse()
+			self.timelines[user] = SingleTimelineResponse(auto_save = self.auto_save)
 
-		self.timelines[user].append_data(
+		self.timelines[user].update_data(
 			new_links = new_links,
 			new_refs = new_refs,
 			new_users = new_users,
 			new_tweets = new_tweets,
-			new_media = new_media
+			new_media = new_media,
 		)
 
 		if self.auto_save:
@@ -235,18 +241,18 @@ class SearchResponse(PullTwitterResponse):
 		self.df_media = None
 
 
-	def append_data(self, 
+	def update_data(self, 
 		new_links = None,
 		new_refs = None,
 		new_users = None,
 		new_tweets = None,
 		new_media = None):
 
-		self.df_links  = super(SearchResponse, self)._update_df(self.df_links, new_links)
-		self.df_refs   = super(SearchResponse, self)._update_df(self.df_refs, new_refs)
-		self.df_users  = super(SearchResponse, self)._update_df(self.df_users, new_users)
-		self.df_tweets = super(SearchResponse, self)._update_df(self.df_tweets, new_tweets)
-		self.df_media  = super(SearchResponse, self)._update_df(self.df_media, new_media)
+		self.df_links  = super(SearchResponse, self)._update_df(self.df_links, new_links, append = self.auto_save)
+		self.df_refs   = super(SearchResponse, self)._update_df(self.df_refs, new_refs, append = self.auto_save)
+		self.df_users  = super(SearchResponse, self)._update_df(self.df_users, new_users, append = self.auto_save)
+		self.df_tweets = super(SearchResponse, self)._update_df(self.df_tweets, new_tweets, append = self.auto_save)
+		self.df_media  = super(SearchResponse, self)._update_df(self.df_media, new_media, append = self.auto_save)
 
 		if self.auto_save:
 			self.save()
@@ -254,11 +260,11 @@ class SearchResponse(PullTwitterResponse):
 	def save(self, output_dir = None):
 		super(SearchResponse, self).save(output_dir = output_dir)
 
-		super(SearchResponse, self)._save_df(self.df_links, self.output_dir, 'links', self.save_format)
-		super(SearchResponse, self)._save_df(self.df_refs, self.output_dir, 'refs', self.save_format)
-		super(SearchResponse, self)._save_df(self.df_users, self.output_dir, 'users', self.save_format)
-		super(SearchResponse, self)._save_df(self.df_tweets, self.output_dir, 'tweets', self.save_format)
-		super(SearchResponse, self)._save_df(self.df_media, self.output_dir, 'media', self.save_format)
+		super(SearchResponse, self)._save_df(self.df_links, self.output_dir, 'links', self.save_format, append = self.auto_save)
+		super(SearchResponse, self)._save_df(self.df_refs, self.output_dir, 'refs', self.save_format, append = self.auto_save)
+		super(SearchResponse, self)._save_df(self.df_users, self.output_dir, 'users', self.save_format, append = self.auto_save)
+		super(SearchResponse, self)._save_df(self.df_tweets, self.output_dir, 'tweets', self.save_format, append = self.auto_save)
+		super(SearchResponse, self)._save_df(self.df_media, self.output_dir, 'media', self.save_format, append = self.auto_save)
 
 
 class LookupResponse(PullTwitterResponse):
@@ -279,18 +285,18 @@ class LookupResponse(PullTwitterResponse):
 		self.df_media = None
 
 
-	def append_data(self, 
+	def update_data(self, 
 		new_links = None,
 		new_refs = None,
 		new_users = None,
 		new_tweets = None,
 		new_media = None):
 
-		self.df_links  = super(LookupResponse, self)._update_df(self.df_links, new_links)
-		self.df_refs   = super(LookupResponse, self)._update_df(self.df_refs, new_refs)
-		self.df_users  = super(LookupResponse, self)._update_df(self.df_users, new_users)
-		self.df_tweets = super(LookupResponse, self)._update_df(self.df_tweets, new_tweets)
-		self.df_media  = super(LookupResponse, self)._update_df(self.df_media, new_media)
+		self.df_links  = super(LookupResponse, self)._update_df(self.df_links, new_links, append = self.auto_save)
+		self.df_refs   = super(LookupResponse, self)._update_df(self.df_refs, new_refs, append = self.auto_save)
+		self.df_users  = super(LookupResponse, self)._update_df(self.df_users, new_users, append = self.auto_save)
+		self.df_tweets = super(LookupResponse, self)._update_df(self.df_tweets, new_tweets, append = self.auto_save)
+		self.df_media  = super(LookupResponse, self)._update_df(self.df_media, new_media, append = self.auto_save)
 
 		if self.auto_save:
 			self.save()
@@ -298,11 +304,11 @@ class LookupResponse(PullTwitterResponse):
 	def save(self, output_dir = None):
 		super(LookupResponse, self).save(output_dir = output_dir)
 
-		super(LookupResponse, self)._save_df(self.df_links, self.output_dir, 'links', self.save_format)
-		super(LookupResponse, self)._save_df(self.df_refs, self.output_dir, 'refs', self.save_format)
-		super(LookupResponse, self)._save_df(self.df_users, self.output_dir, 'users', self.save_format)
-		super(LookupResponse, self)._save_df(self.df_tweets, self.output_dir, 'tweets', self.save_format)
-		super(LookupResponse, self)._save_df(self.df_media, self.output_dir, 'media', self.save_format)
+		super(LookupResponse, self)._save_df(self.df_links, self.output_dir, 'links', self.save_format, append = self.auto_save)
+		super(LookupResponse, self)._save_df(self.df_refs, self.output_dir, 'refs', self.save_format, append = self.auto_save)
+		super(LookupResponse, self)._save_df(self.df_users, self.output_dir, 'users', self.save_format, append = self.auto_save)
+		super(LookupResponse, self)._save_df(self.df_tweets, self.output_dir, 'tweets', self.save_format, append = self.auto_save)
+		super(LookupResponse, self)._save_df(self.df_media, self.output_dir, 'media', self.save_format, append = self.auto_save)
 
 
 class UserResponse(PullTwitterResponse):
@@ -318,19 +324,20 @@ class UserResponse(PullTwitterResponse):
 		self.df_tweets = None
 
 
-	def append_data(self, 
+	def update_data(self, 
 		new_users = None,
 		new_tweets = None):
 
-		self.df_users  = super(UserResponse, self)._update_df(self.df_users, new_users)
-		self.df_tweets = super(UserResponse, self)._update_df(self.df_tweets, new_tweets)
+		self.df_users  = super(UserResponse, self)._update_df(self.df_users, new_users, append = self.auto_save)
+		self.df_tweets = super(UserResponse, self)._update_df(self.df_tweets, new_tweets, append = self.auto_save)
 
 		if self.auto_save:
 			self.save()
 
+
 	def save(self, output_dir = None):
 		super(UserResponse, self).save(output_dir = output_dir)
 
-		super(UserResponse, self)._save_df(self.df_users, self.output_dir, 'users', self.save_format)
-		super(UserResponse, self)._save_df(self.df_tweets, self.output_dir, 'tweets', self.save_format)
+		super(UserResponse, self)._save_df(self.df_users, self.output_dir, 'users', self.save_format, append = self.auto_save)
+		super(UserResponse, self)._save_df(self.df_tweets, self.output_dir, 'tweets', self.save_format, append = self.auto_save)
 

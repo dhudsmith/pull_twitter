@@ -81,7 +81,7 @@ class User:
                 users = [twalc.User(**user_dict).to_dict() for user_dict in users]
                 tweets = [tw.to_dict() for tw in ref_tweets] if ref_tweets else None
 
-                api_response.append_data(new_users = users, new_tweets = tweets)
+                api_response.update_data(new_users = users, new_tweets = tweets)
 
                 num_collected += len(users)
                 print(f"\rCollected {num_collected} users", end='')
