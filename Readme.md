@@ -99,6 +99,11 @@ Note: including the `author_id` extension will also pull user metadata simultane
 | --end-time | -et | Ending date to search tweets(in format YYYY-MM-DD or isoformat) | No | None (Current time) |
 | --tweets-per-query | -tpq | Number of tweets present in each response from the Twitter API | No | 500 |
 
+
+### Example
+```python pull_twitter.py --config-file ./configs/config.yaml search -q COVID19 -mr 50 -st 2021-08-19 -et 2021-08-21```
+
+
 ## Lookup Tweets
 
 Using the subcommand `lookup` will collect tweets that match a provided query string.
@@ -116,9 +121,8 @@ Note: including the `author_id` extension will also pull user metadata simultane
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | True |
 | --tweets-per-query | -tpq | Number of tweets present in each response from the Twitter API | No | 500 |
 
-
 ### Example
-```python pull_twitter.py --config-file ./configs/config.yaml search -q COVID19 -mr 50 -st 2021-08-19 -et 2021-08-21```
+```python pull_twitter.py --config-file ./configs/config.yaml lookup -i data/tweet_ids.csv```
 
 # Python API
 
@@ -130,18 +134,18 @@ To use the tool in a python script or notebook, begin with importing the PullTwi
 
 To initialize the API object, you may create a PullTwitterConfig object or pass a filepath to a configuration yaml file:
 `
-config = PullTwitterConfig.from_file(<config_filepath>)
-api = PullTwitterAPI(config = config)
+config = PullTwitterConfig.from_file(<config_filepath>)  
+api = PullTwitterAPI(config = config)  
 `
-Or
+Or  
 `api = PullTwitterAPI(config_path = <config_filepath>)`
 
 Finally, the four subcommands can be called using the api object:
 `
-api.timelines(...)
-api.users(...)
-api.search(...)
-api.lookup(...)
+api.timelines(...)  
+api.users(...)  
+api.search(...)  
+api.lookup(...)  
 `
 
 Depending on your use case, the auto_save parameter in all api commands controls how the response data is saved with two options:
