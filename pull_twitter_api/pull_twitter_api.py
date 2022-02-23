@@ -7,7 +7,7 @@ import yaml
 
 from tweepy.client import Client
 
-from .utils.config_schema import TwitterPullConfig
+from .utils.config_schema import PullTwitterConfig
 from .utils.timeline import Timeline
 from .utils.pull_timelines import pull_timelines
 from .utils.pull_users import pull_users
@@ -23,14 +23,14 @@ class PullTwitterAPI():
 	'''
 
 	def __init__(self, 
-		config: TwitterPullConfig = None,
+		config: PullTwitterConfig = None,
 		config_path: str = None,
 		save_format: str = 'csv'):
 		"""
 		Constructor for PullTwitterAPI
 
 		Parameters:
-			-config: TwitterPullConfig
+			-config: PullTwitterConfig
 				-Initialized configuration object for queries
 			-config_path: str
 				-Path to a yaml config file. Should not be set if config parameter is passed
@@ -58,13 +58,13 @@ class PullTwitterAPI():
 	# Configuration and directory setup
 	
 	def load_config(self, 
-		config: TwitterPullConfig = None, 
+		config: PullTwitterConfig = None, 
 		config_path: str = None) -> None:
 		"""
 		Load or change the api configuration file
 
 		Parameters:
-			-config: TwitterPullConfig
+			-config: PullTwitterConfig
 				An instantiated configuration object
 			-config_path: str
 				Filepath to a configuration yaml file
@@ -74,7 +74,7 @@ class PullTwitterAPI():
 			self.config = config
 		else:
 			if config_path:
-				self.config = TwitterPullConfig.from_file(config_path)
+				self.config = PullTwitterConfig.from_file(config_path)
 				self.query_params = self.config.twitter.query_params
 			else:
 				raise ValueError("One of config or config_path must be set.")
@@ -116,6 +116,8 @@ class PullTwitterAPI():
 		Parameters:
 			-user_csv: str
 				-Filepath to the csv containing user handles
+			-auto_save: bool
+				-Whether to automatically save outputs during pull or manually save later
 		"""
 
 		if not self.config:

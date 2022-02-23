@@ -22,7 +22,7 @@ class LocalConfig(BaseModel):
 
 
 # Full Config Model for app
-class TwitterPullConfig(BaseModel):
+class PullTwitterConfig(BaseModel):
     local: LocalConfig
     twitter: TwitterConfig
 

@@ -6,7 +6,6 @@ import os
 from tweepy.client import Client
 import yaml
 import pprint
-from .config_schema import TwitterPullConfig
 from .twitter_schema import LookupQueryParams
 from .timeline import Timeline
 from .pull_twitter_response import TimelineResponse
@@ -25,6 +24,9 @@ def pull_timelines(client: Client,
                    output_user: bool = False,
                    use_skip: bool = False,
                    tweets_per_query: int = 100):
+    
+
+    tl_query_params = query_params.copy().reformat('tweet')
 
     # get search identifiers
     df_handles = pd.read_csv(user_csv)
@@ -43,7 +45,7 @@ def pull_timelines(client: Client,
         raise ValueError("`handle_column` and `author_id_column` are mutually exclusive arguments.")
 
     # set up the timeline
-    timeline = Timeline(client, query_params, search_type)
+    timeline = Timeline(client, tl_query_params, search_type)
     response = TimelineResponse()
 
     # Pull the tweets

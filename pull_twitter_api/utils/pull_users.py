@@ -6,7 +6,7 @@ import os
 from tweepy.client import Client
 import yaml
 import pprint
-from .config_schema import TwitterPullConfig
+from .config_schema import PullTwitterConfig
 from .twitter_schema import LookupQueryParams
 from .user import User
 from .pull_twitter_response import UserResponse
@@ -25,6 +25,9 @@ def pull_users(client: Client,
                use_skip: bool = False,
                tweets_per_query: int = 100):
 
+
+    user_query_params = query_params.copy().reformat('user')
+
     # get search identifiers
     df_users = pd.read_csv(user_csv)
     if use_skip:
@@ -40,7 +43,7 @@ def pull_users(client: Client,
         raise ValueError("`handle_column` and `author_id_column` are mutually exclusive arguments.")
 
     # set up the user object
-    user = User(client, query_params, ident_type)
+    user = User(client, user_query_params, ident_type)
 
     try:
         response = user.pull(

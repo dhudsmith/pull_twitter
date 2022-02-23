@@ -69,7 +69,7 @@ if __name__ == "__main__":
         default = "skip")
     parser_users.add_argument("-usc", "--use-skip", type=bool, 
         help="Indicates whether to use the skip column to ignore specific handles", required = False,
-        default = False)
+        default = True)
     parser_users.add_argument("-tpq", "--tweets-per-query", type=int,
         help="Number of tweets present in each resposne from the Twitter API", required = False,
         default = 100)
@@ -97,17 +97,21 @@ if __name__ == "__main__":
     parser_search.set_defaults(name="search")
 
     # Lookup subcommand -----------------------------------------------------------------------
-    parser_search    = subparsers.add_parser("search", aliases=["s"], 
+    parser_lookup    = subparsers.add_parser("lookup", aliases=["l"], 
         help = 'Pull tweets based on a given query',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser_search.add_argument("-i", "--id_csv", type=str, 
+    parser_lookup.add_argument("-i", "--id-csv", type=str, 
         help="CSV containing list of tweet ids", required = True)
-    parser_search.add_argument("-ic", "--id_col", type=str,
-        help="Name of column containing ids in id_csv", required = False)
-    parser_search.add_argument("-tpq", "--tweets-per-query", type=int, 
+    parser_lookup.add_argument("-ic", "--id-col", type=str,
+        help="Name of column containing ids in id-csv", required = False)
+    parser_lookup.add_argument("-us", "--skip-column", type=str,
+        default = "skip")
+    parser_lookup.add_argument("-usc", "--use-skip", type=bool,
+        default = True)
+    parser_lookup.add_argument("-tpq", "--tweets-per-query", type=int, 
         help="Number of tweets present in each response from the Twitter API", required = False,
         default = 500)
-    parser_search.set_defaults(name="search")
+    parser_lookup.set_defaults(name="lookup")
 
 
     # Extract the command line arguments
@@ -132,7 +136,6 @@ if __name__ == "__main__":
         'lookup': api.lookup,
     }
 
-    print(command_kwargs)
     _ = func_dict[sc_name](auto_save = True, **command_kwargs)
 
     print("\n")

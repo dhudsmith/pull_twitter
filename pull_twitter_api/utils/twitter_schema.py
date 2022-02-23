@@ -100,6 +100,9 @@ class UserFields(Enum):
 _TWEET_PARAMS = ['author_id', 'conversation_id', 'created_at', 'in_reply_to_user_id', 'lang', 'public_metrics', 'possibly_sensitive', 'referenced_tweets', 'reply_settings', 'source', 'text', 'withheld']
 _USER_PARAMS  = ['created_at', 'description', 'id', 'name', 'public_metrics', 'username', 'pinned_tweet_id']
 
+_TWEET_EXPANSIONS = ['author_id', 'referenced_tweets.id', 'referenced_tweets.id.author_id', 'entities.mentions.username', 'attachments.poll_ids', 'attachments.media_keys', 'in_reply_to_user_id', 'geo.place_id']
+_USER_EXPANSIONS  = ['pinned_tweet_id']
+
 class LookupQueryParams(BaseModel):
     expansions: Optional[Union[List[Expansions], Expansions]] = None
     media_fields: Optional[Union[List[MediaFields], MediaFields]] = None
@@ -107,6 +110,22 @@ class LookupQueryParams(BaseModel):
     poll_fields: Optional[Union[List[PollFields], PollFields]] = None
     tweet_fields: Optional[Union[List[TweetFields], TweetFields]] = _TWEET_PARAMS
     user_fields: Optional[Union[List[UserFields], UserFields]] = _USER_PARAMS
+
+    def reformat(self, q_type = 'tweet'):
+        '''
+        Reformat query params to comply with current subcommand
+        '''
+
+        exp_set = _USER_EXPANSIONS if q_type == 'user' else _TWEET_EXPANSIONS 
+        self.expansions = [exp for exp in self.expansions if exp in exp_set]
+
+        # Remove extraneous fields in user params
+        if q_type == 'user':
+            del self.media_fields
+            del self.place_fields
+            del self.poll_fields
+
+        return self
 
     class Config:
         extra = "forbid"

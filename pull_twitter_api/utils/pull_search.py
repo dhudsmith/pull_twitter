@@ -6,7 +6,6 @@ import os
 from tweepy.client import Client
 import yaml
 import pprint
-from .config_schema import TwitterPullConfig
 from .twitter_schema import LookupQueryParams
 from .tweet_search import TweetSearch
 from .pull_twitter_response import SearchResponse
@@ -24,8 +23,10 @@ def pull_search(client: Client,
     end_time: str = None,
     tweets_per_query: int = 100):
 
+    search_query_params = query_params.copy().reformat('tweet')
+
     # set up the search
-    tweet_search = TweetSearch(client, query_params)
+    tweet_search = TweetSearch(client, search_query_params)
 
     # parse times into datetime objects
     if start_time:

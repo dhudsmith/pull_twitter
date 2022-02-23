@@ -59,7 +59,7 @@ Note: including the `author_id` extension will also pull user metadata simultane
 | --handle-column | -hc | Name of handles column in handles-csv. Incompatible with author-id-column. | No (mutually exclusive with above) | "handle" |
 | --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. | No (mutually exclusive with above) | "author_id" |
 | --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
-| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | False |
+| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | True |
 
 ### Example
 ```python pull_twitter.py --config-file ./configs/config.yaml timeline -u "./data/celeb_handle_test.csv" -ou True```
@@ -77,7 +77,7 @@ For help information, run the command:
 | --handle-column | -hc | Name of handles column in handles-csv | No (mutually exclusive with above) | "handle" |
 | --author-id-column | -aic | Name of handles column in handles-csv. Incompatible with handle-column. | No (mutually exclusive with above) | "author_id" |
 | --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
-| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | False |
+| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | True |
 
 ### Example
 ```python pull_twitter.py --config-file ./configs/config.yaml users -u "./data/celeb_handle_test.csv"```
@@ -99,6 +99,23 @@ Note: including the `author_id` extension will also pull user metadata simultane
 | --end-time | -et | Ending date to search tweets(in format YYYY-MM-DD or isoformat) | No | None (Current time) |
 | --tweets-per-query | -tpq | Number of tweets present in each response from the Twitter API | No | 500 |
 
+## Lookup Tweets
+
+Using the subcommand `lookup` will collect tweets that match a provided query string.
+For help information, run the command:
+```python twitter_pull.py lookup --help```
+
+Note: including the `author_id` extension will also pull user metadata simultaneously with tweets
+
+### Arguments
+| Full name | Shortened name | Description | Required? | Default |
+| --------- | -------------- | ----------- | --------- | ------- |
+| --id-csv  |       -i       | Path to csv with list of Tweet ids | Yes | N/A |
+| --id-col  |      -ic       | Name of column containing Tweet ids | No | "id" |
+| --skip-column | -sc | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
+| --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | True |
+| --tweets-per-query | -tpq | Number of tweets present in each response from the Twitter API | No | 500 |
+
 
 ### Example
 ```python pull_twitter.py --config-file ./configs/config.yaml search -q COVID19 -mr 50 -st 2021-08-19 -et 2021-08-21```
@@ -108,23 +125,28 @@ Note: including the `author_id` extension will also pull user metadata simultane
 As an alternative to a command line interface, there is also a python script API with the same functionality.
 
 ## Guide
-To use the tool in a python script or notebook, begin with importing the TwitterPullConfig and PullTwitterAPI modules
-```from pull_twitter_api import TwitterPullConfig, PullTwitterAPI```
+To use the tool in a python script or notebook, begin with importing the PullTwitterConfig and PullTwitterAPI modules
+```from pull_twitter_api import PullTwitterConfig, PullTwitterAPI```
 
-To initialize the API object, you may create a TwitterPullConfig object or pass a filepath to a configuration yaml file:
+To initialize the API object, you may create a PullTwitterConfig object or pass a filepath to a configuration yaml file:
 `
-config = TwitterPullConfig.from_file(<config_filepath>)
+config = PullTwitterConfig.from_file(<config_filepath>)
 api = PullTwitterAPI(config = config)
 `
 Or
 `api = PullTwitterAPI(config_path = <config_filepath>)`
 
-Finally, the three query commands can be called using the api object:
+Finally, the four subcommands can be called using the api object:
 `
 api.timelines(...)
 api.users(...)
 api.search(...)
+api.lookup(...)
 `
+
+Depending on your use case, the auto_save parameter in all api commands controls how the response data is saved with two options:
+1) Setting auto_save=True will automatically save responses from the Twitter API to a local file. The file is updated each batch returned, and only the most recent batch is held in memory. This is best for large jobs or jobs run without supervision.
+2) Setting auto_save=False (default for api) will require the program to manually save the response data. This can be done by calling .save() on the PullTwitterResponse Object. All response data will be held in the response object throughout the api call.
 
 An [example notebook](Python_Interface_Example.ipynb) is included to show basic usage of the tool in python.
 
@@ -140,7 +162,7 @@ Arguments through the python API mimic those of the command line interface
 | handle-column | Name of handles column in handles-csv. Incompatible with author-id-column. | No (mutually exclusive with above) | "handle" |
 | author_id_column | Name of handles column in handles-csv. Incompatible with handle-column. | No (mutually exclusive with above) | "author_id" |
 | skip_column | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
-| use_skip | Indicates whether to use the skip column to ignore specific handles | No | False |
+| use_skip | Indicates whether to use the skip column to ignore specific handles | No | True |
 
 ### PullTwitterAPI.users()
 | Arg name | Description | Required? | Default |
@@ -150,7 +172,7 @@ Arguments through the python API mimic those of the command line interface
 | handle_column | Name of handles column in handles-csv | No (mutually exclusive with above) | "handle" |
 | author_id_column | Name of handles column in handles-csv. Incompatible with handle-column. | No (mutually exclusive with above) | "author_id" |
 | skip_column | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
-| use_skip | Indicates whether to use the skip column to ignore specific handles | No | False |
+| use_skip | Indicates whether to use the skip column to ignore specific handles | No | True |
 
 ### PullTwitterAPI.search()
 
@@ -160,6 +182,16 @@ Arguments through the python API mimic those of the command line interface
 | max_response | Maximum number of tweets to return using query | No | 100 |
 | start_time | Starting date to search tweets (in format YYYY-MM-DD or isoformat) | No | None |
 | end_time | Ending date to search tweets(in format YYYY-MM-DD or isoformat) | No | None (Current time) |
+| tweets_per_query | Number of tweets present in each response from the Twitter API | No | 500 |
+
+### PullTwitterAPI.lookup()
+
+| Arg name | Description | Required? | Default |
+| -------- | ----------- | --------- | ------- |
+| id_csv   | Path to csv file with list of Tweet Ids | Yes | N/A |
+| id_col   | Name of column in id_csv containing Tweet ids | No | "id" |
+| skip_column | Name of column containing skip indicators in handles-csv (skip indicated with a 1) | No | "skip" |
+| use_skip | Indicates whether to use the skip column to ignore specific handles | No | True |
 | tweets_per_query | Number of tweets present in each response from the Twitter API | No | 500 |
 
 

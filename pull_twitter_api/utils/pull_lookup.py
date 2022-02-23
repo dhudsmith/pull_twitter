@@ -6,7 +6,6 @@ import os
 from tweepy.client import Client
 import yaml
 import pprint
-from .config_schema import TwitterPullConfig
 from .twitter_schema import LookupQueryParams
 from .tweet_lookup import TweetLookup
 from .pull_twitter_response import LookupResponse
@@ -14,19 +13,26 @@ import pandas as pd
 from datetime import datetime
 
 def pull_lookup(client: Client, 
-    query_params: LookupQueryParams,
-    id_csv: str,
-    api_response: LookupResponse = None,
-    output_dir: str = None,
-    save_format: str = 'csv',
-    id_col: str = 'id',
-    tweets_per_query: int = 100):
+                query_params: LookupQueryParams,
+                id_csv: str,
+                api_response: LookupResponse = None,
+                output_dir: str = None,
+                save_format: str = 'csv',
+                id_col: str = 'id',
+                skip_column: str = "skip",
+                use_skip: bool = False,
+                tweets_per_query: int = 100):
+
+    lookup_query_params = query_params.copy().reformat('tweet')
 
     df_ids = pd.read_csv(id_csv)
+    if use_skip:
+        df_ids = df_ids.loc[df_ids[skip_column] != 1]
+
     ids = list(df_ids[id_col])
 
     # set up the search
-    tweet_lookup = TweetLookup(client, query_params)
+    tweet_lookup = TweetLookup(client, lookup_query_params)
 
     try:
         response = tweet_lookup.pull(
