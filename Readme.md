@@ -62,7 +62,7 @@ Note: including the `author_id` extension will also pull user metadata simultane
 | --use-skip | -usc | Indicates whether to use the skip column to ignore specific handles | No | True |
 
 ### Example
-```python pull_twitter.py --config-file ./configs/config.yaml timeline -u "./data/celeb_handle_test.csv" -ou True```
+```python pull_twitter.py --config-file ./configs/config.yaml timeline -u "./data/celeb_handle_test.csv" -hc "handle" -ou True```
 
 ## Fetch User Data
 

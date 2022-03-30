@@ -38,6 +38,7 @@ class Timeline:
              auto_save: bool = False,
              output_dir: str = None,
              save_format: str = 'csv',
+             full_save = True,
              output_user: bool = False,
              tweets_per_query: int = 100):
         """
@@ -47,6 +48,7 @@ class Timeline:
             ident: the identifier for the user, an instance of either 'handle' or 'author_id'
             output_dir: location of output data
             ident_col: the name of the output column to save the identifier
+            full_save: whether to save extra tweet information (entities, geo, etc.) or not
             output_user: weather or not to output the user identifier with each tweet
             tweets_per_query: num_tweets the number of database entries processed. Mainly for debugging purposes.
         """
@@ -99,14 +101,18 @@ class Timeline:
             has_refs: bool = 'referenced_tweets' in self.query_params.tweet_fields
 
             if tweets:
+                dict_func = lambda twitter_api_obj: twitter_api_obj.to_full_dict()
+                if not full_save:
+                    dict_func = lambda twitter_api_obj: twitter_api_obj.to_dict()
+
                 # Expansions parsing
-                ref_tweets = [tw.to_dict() for tw in ref_tweets] if ref_tweets else None
-                rel_users = [us.to_dict() for us in rel_users] if rel_users else None
-                media = [md.to_dict() for md in inc_media] if inc_media else None
+                ref_tweets = [dict_func(tw) for tw in ref_tweets] if ref_tweets else None
+                rel_users = [dict_func(us) for us in rel_users] if rel_users else None
+                media = [dict_func(md) for md in inc_media] if inc_media else None
                 links = Timeline.__parse_tweet_links(tweets) if has_refs else None
 
                 # Original Tweets Parsing
-                tweets = [twalc.Tweet(**tw).to_dict() for tw in tweets]
+                tweets = [dict_func(twalc.Tweet(**tw)) for tw in tweets]
                         
                 # Update response object
                 api_response.update_data(ident,

@@ -19,6 +19,7 @@ def pull_users(client: Client,
                api_response: UserResponse = None,
                output_dir: str = None,
                save_format: str = 'csv',
+               full_save: bool = True,
                handle_column: str = None,
                author_id_column: str = None,
                skip_column: str = "skip",
@@ -49,8 +50,9 @@ def pull_users(client: Client,
         response = user.pull(
             ident=search_ident, 
             api_response = api_response,
-            output_dir=output_dir, 
+            output_dir=output_dir,
             save_format = save_format, 
+            full_save = full_save,
             batch_size = tweets_per_query)
         return response
     except Exception as e:

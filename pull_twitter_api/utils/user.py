@@ -38,6 +38,7 @@ class User:
         auto_save: bool = False,
         output_dir: str = None, 
         save_format: str = 'csv', 
+        full_save = True,
         batch_size: int = 100):
         """
         Lookup the users to get updated follower counts.
@@ -45,6 +46,7 @@ class User:
             ident: the identifier for the user, an instance of either 'handle' or 'author_id'
             output_dir: the directory to save the data
             save_format: file type to save results as (currently "csv" and "json" are supported)
+            full_save: whether to save extra tweet information (entities, geo, etc.) or not
             batch_size: number of handles to include in each request.  Maximum for twitter api is 100
         """
 
@@ -78,8 +80,12 @@ class User:
             ref_tweets = includes.tweets
 
             if users:
-                users = [twalc.User(**user_dict).to_dict() for user_dict in users]
-                tweets = [tw.to_dict() for tw in ref_tweets] if ref_tweets else None
+                dict_func = lambda twitter_api_obj: twitter_api_obj.to_full_dict()
+                if not full_save:
+                    dict_func = lambda twitter_api_obj: twitter_api_obj.to_dict()
+
+                users = [dict_func(twalc.User(**user_dict)) for user_dict in users]
+                tweets = [dict_func(tw) for tw in ref_tweets] if ref_tweets else None
 
                 api_response.update_data(new_users = users, new_tweets = tweets)
 

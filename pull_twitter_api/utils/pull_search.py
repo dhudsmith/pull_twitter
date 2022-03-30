@@ -18,6 +18,7 @@ def pull_search(client: Client,
     api_response: SearchResponse = None,
     output_dir: str = None,
     save_format: str = 'csv',
+    full_save: bool = True,
     max_response: int = 100,
     start_time: str = None, 
     end_time: str = None,
@@ -42,6 +43,8 @@ def pull_search(client: Client,
             start_time = start_time, 
             end_time = end_time,
             max_results = max_response, 
+            save_format = save_format,
+            full_save = full_save,
             batch_size  = tweets_per_query)
 
         return response

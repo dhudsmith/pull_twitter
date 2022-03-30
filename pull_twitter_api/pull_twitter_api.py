@@ -25,7 +25,8 @@ class PullTwitterAPI():
 	def __init__(self, 
 		config: PullTwitterConfig = None,
 		config_path: str = None,
-		save_format: str = 'csv'):
+		save_format: str = 'csv',
+		full_save: bool = True):
 		"""
 		Constructor for PullTwitterAPI
 

@@ -18,6 +18,7 @@ def pull_lookup(client: Client,
                 api_response: LookupResponse = None,
                 output_dir: str = None,
                 save_format: str = 'csv',
+                full_save: bool = True,
                 id_col: str = 'id',
                 skip_column: str = "skip",
                 use_skip: bool = False,
@@ -37,8 +38,10 @@ def pull_lookup(client: Client,
     try:
         response = tweet_lookup.pull(
             ids, 
-            output_dir=output_dir, 
+            output_dir=output_dir,
             api_response = api_response,
+            save_format = save_format,
+            full_save = full_save,
             batch_size  = tweets_per_query)
 
         return response

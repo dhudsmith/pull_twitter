@@ -5,4 +5,4 @@ configs
 *~
 *.zip
 *.pyc
-.ipynb_checkpoints/Python Interface Example-checkpoint.ipynb
+*.ipynb

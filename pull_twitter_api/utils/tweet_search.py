@@ -29,10 +29,17 @@ class TweetSearch:
 		self.client: Client = tweepy_client
 		self.query_params = query_params
 
-	def pull(self, query:str, api_response: SearchResponse = None,
-				auto_save: bool = False, output_dir: str = None, save_format: str = 'csv',
-				start_time: Union[datetime, str] = None, end_time: Union[datetime, str] = None,
-				max_results: int = 100, batch_size: int = 100): # add start and end times
+	def pull(self, query:str, 
+		api_response: SearchResponse = None,
+		auto_save: bool = False, 
+		output_dir: str = None, 
+		save_format: str = 'csv', 
+		full_save = True,
+		start_time: Union[datetime, str] = None, 
+		end_time: Union[datetime, str] = None,
+		max_results: int = 100, 
+		batch_size: int = 100):
+	
 		"""
 		Query tweets based on query string
 
@@ -40,6 +47,7 @@ class TweetSearch:
 			query- Query string to use in searching tweets
 			output_dir: parent directory of all twitter_pull results
 			save_format: the file type of the output results (csv or json)
+			full_save: whether to save extra tweet information (entities, geo, etc.) or not
 			auto_save: whether to continually save to disk after each batch
 			start_time: tweets will be searched beginning at this time
 			end_time: tweets will be searched at or before this time
@@ -96,15 +104,18 @@ class TweetSearch:
 			has_refs: bool = 'referenced_tweets' in self.query_params.tweet_fields
 
 			if tweets:
+				dict_func = lambda twitter_api_obj: twitter_api_obj.to_full_dict()
+				if not full_save:
+					dict_func = lambda twitter_api_obj: twitter_api_obj.to_dict()
 
 				# Expansions parsing
-				ref_tweets = [tw.to_dict() for tw in ref_tweets] if ref_tweets else None
-				rel_users = [us.to_dict() for us in rel_users] if rel_users else None
-				media = [md.to_dict() for md in inc_media] if inc_media else None
+				ref_tweets = [dict_func(tw) for tw in ref_tweets] if ref_tweets else None
+				rel_users = [dict_func(us) for us in rel_users] if rel_users else None
+				media = [dict_func(md) for md in inc_media] if inc_media else None
 				links = TweetSearch.__parse_tweet_links(tweets) if has_refs else None
 
 				# Original Tweets Parsing
-				tweets = [twalc.Tweet(**tw).to_dict() for tw in tweets]
+				tweets = [dict_func(twalc.Tweet(**tw)) for tw in tweets]
 
 				# Update response object
 				api_response.update_data(new_links = links,
