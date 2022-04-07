@@ -6,18 +6,28 @@ import os
 from tweepy.client import Client
 import yaml
 import pprint
-from utils.config_schema import TwitterPullConfig
-from utils.user import User
+from .config_schema import PullTwitterConfig
+from .twitter_schema import LookupQueryParams
+from .user import User
+from .pull_twitter_response import UserResponse
 import pandas as pd
 
 
-def pull_users(config: TwitterPullConfig, client: Client, user_csv: str,
+def pull_users(client: Client, 
+               query_params: LookupQueryParams,
+               user_csv: str,
+               api_response: UserResponse = None,
                output_dir: str = None,
+               save_format: str = 'csv',
+               full_save: bool = True,
                handle_column: str = None,
                author_id_column: str = None,
                skip_column: str = "skip",
                use_skip: bool = False,
                tweets_per_query: int = 100):
+
+
+    user_query_params = query_params.copy().reformat('user')
 
     # get search identifiers
     df_users = pd.read_csv(user_csv)
@@ -34,12 +44,18 @@ def pull_users(config: TwitterPullConfig, client: Client, user_csv: str,
         raise ValueError("`handle_column` and `author_id_column` are mutually exclusive arguments.")
 
     # set up the user object
-    user = User(client, config.twitter.query_params, ident_type)
-
-    output_dir = str(config.local.output_dir) if not output_dir else output_dir
+    user = User(client, user_query_params, ident_type)
 
     try:
-        user.pull(ident=search_ident, output_dir=output_dir, save_format = config.local.save_format, batch_size = tweets_per_query)
+        response = user.pull(
+            ident=search_ident, 
+            api_response = api_response,
+            output_dir=output_dir,
+            save_format = save_format, 
+            full_save = full_save,
+            batch_size = tweets_per_query)
+        return response
     except Exception as e:
         print(f"Failed to pull user data. Error: ", e)
+        return None
 

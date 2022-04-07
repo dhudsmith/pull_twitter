@@ -1,8 +1,9 @@
 import os
+import yaml
 
 from pydantic import BaseModel, SecretStr, FilePath, DirectoryPath
 
-from utils.twitter_schema import LookupQueryParams
+from .twitter_schema import LookupQueryParams
 
 
 # twitter
@@ -21,9 +22,20 @@ class LocalConfig(BaseModel):
 
 
 # Full Config Model for app
-class TwitterPullConfig(BaseModel):
+class PullTwitterConfig(BaseModel):
     local: LocalConfig
     twitter: TwitterConfig
+
+    @classmethod
+    def from_file(cls, path_to_config):
+
+        with open(path_to_config, 'r') as f:
+            config_yml = yaml.load(f, Loader=yaml.FullLoader)
+
+        config = cls(**config_yml)
+        config.set_environment_vars()
+
+        return config
 
     def set_environment_vars(self) -> None:
         # twitter vars

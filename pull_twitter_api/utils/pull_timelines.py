@@ -4,23 +4,35 @@ https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/ge
 """
 import os
 from tweepy.client import Client
+import yaml
 import pprint
-from utils.config_schema import TwitterPullConfig
-from utils.timeline import Timeline
+from .twitter_schema import LookupQueryParams
+from .timeline import Timeline
+from .pull_twitter_response import TimelineResponse
 import pandas as pd
 
 
-def pull_timelines(config: TwitterPullConfig, client: Client, user_csv: str,
+def pull_timelines(client: Client, 
+                   query_params: LookupQueryParams,
+                   user_csv: str,
+                   api_response: TimelineResponse = None,
                    output_dir: str = None,
+                   save_format: str = None,
+                   full_save: bool = True,
                    handle_column: str = None,
                    author_id_column: str = None,
                    skip_column: str = "skip",
                    output_user: bool = False,
                    use_skip: bool = False,
                    tweets_per_query: int = 100):
+    
+
+    tl_query_params = query_params.copy().reformat('tweet')
 
     # get search identifiers
     df_handles = pd.read_csv(user_csv)
+
+
     if use_skip:
         df_handles = df_handles.loc[df_handles[skip_column] != 1]
 
@@ -34,20 +46,22 @@ def pull_timelines(config: TwitterPullConfig, client: Client, user_csv: str,
         raise ValueError("`handle_column` and `author_id_column` are mutually exclusive arguments.")
 
     # set up the timeline
-    timeline = Timeline(client, config.twitter.query_params, search_type)
-
-    output_dir = str(config.local.output_dir) if not output_dir else output_dir
+    timeline = Timeline(client, tl_query_params, search_type)
+    response = TimelineResponse()
 
     # Pull the tweets
     for ix, ident in enumerate(search_ident):
         print(f"Processing handle {ix + 1}/{len(search_ident)}")
         try:
-            timeline.pull(
+            response = timeline.pull(
                 ident=ident,
                 output_dir=output_dir,
-                save_format = config.local.save_format,
+                api_response = api_response,
+                save_format = save_format,
+                full_save = full_save,
                 output_user=output_user,
                 ident_col=search_type,
                 tweets_per_query=tweets_per_query)
         except Exception as e:
             print(f"Failed to pull timeline for {search_type} {ident}. Error: ", e)
+    return response
