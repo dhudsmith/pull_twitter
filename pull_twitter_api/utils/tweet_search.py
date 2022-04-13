@@ -29,17 +29,17 @@ class TweetSearch:
 		self.client: Client = tweepy_client
 		self.query_params = query_params
 
-	def pull(self, query:str, 
+	def pull(self, query:str,
 		api_response: SearchResponse = None,
-		auto_save: bool = False, 
-		output_dir: str = None, 
-		save_format: str = 'csv', 
+		auto_save: bool = False,
+		output_dir: str = None,
+		save_format: str = 'csv',
 		full_save = True,
-		start_time: Union[datetime, str] = None, 
+		start_time: Union[datetime, str] = None,
 		end_time: Union[datetime, str] = None,
-		max_results: int = 100, 
+		max_results: int = 100,
 		batch_size: int = 100):
-	
+
 		"""
 		Query tweets based on query string
 
@@ -56,6 +56,9 @@ class TweetSearch:
 
 		print(f"Pulling tweet results using '{query}' search query.")
 
+		# setup save directory
+		save_path = f"{output_dir}/data_%s.{save_format}"
+		print(f"Saving tweets to {save_path}")
 
 		num_batches = (max_results//batch_size) + 1
 		batches = [batch_size] * num_batches
@@ -73,8 +76,8 @@ class TweetSearch:
 
 		# Initialize API Response
 		if api_response is None:
-			api_response = SearchResponse(auto_save = auto_save, 
-				save_format = save_format, 
+			api_response = SearchResponse(auto_save = auto_save,
+				save_format = save_format,
 				output_dir = output_dir)
 
 		for batch in batches:
