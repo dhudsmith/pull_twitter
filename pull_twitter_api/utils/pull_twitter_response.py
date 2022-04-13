@@ -129,8 +129,10 @@ class PullTwitterResponse(object):
 
 		if df is not None:
 			if save_format == 'csv':
-				df.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL,
-                                        header=True, mode = 'a' if append else 'w')
+				mode = 'a' if append else 'w'
+				with open(save_path, mode, encoding = 'utf-8') as f:
+					df.to_csv(f, index=False, quoting=csv.QUOTE_ALL,
+                                        header=not f.tell(), mode = mode)
 			elif save_format == 'json':
 				df.to_json(save_path, orient = 'table', mode = 'a' if append else 'w')
 
