@@ -1,11 +1,5 @@
-import os.path
 import time
-from datetime import datetime
 from typing import Union, List, Dict
-import csv
-
-import pandas as pd
-import numpy as np
 import tweepy.errors
 from tweepy.client import Client
 from tweepy.tweet import Tweet
@@ -14,7 +8,8 @@ import twitteralchemy as twalc
 
 from . import exceptions
 from .twitter_schema import LookupQueryParams
-from .pull_twitter_response import PullTwitterResponse, TimelineResponse
+from .pull_twitter_response import TimelineResponse
+
 
 class Timeline:
     """
@@ -38,7 +33,7 @@ class Timeline:
              auto_save: bool = False,
              output_dir: str = None,
              save_format: str = 'csv',
-             full_save = True,
+             full_save=True,
              output_user: bool = False,
              tweets_per_query: int = 100):
         """
@@ -68,12 +63,12 @@ class Timeline:
             user_id = ident
         else:
             raise ValueError(f'type must be one of "handle" or "author_id". Received {self.ident_type}')
-  
+
         # Initialize API Response
         if api_response is None:
-            api_response = TimelineResponse(auto_save = auto_save,
-                save_format = save_format,
-                output_dir = output_dir)
+            api_response = TimelineResponse(auto_save=auto_save,
+                                            save_format=save_format,
+                                            output_dir=output_dir)
 
         finished = False
         next_token = None
@@ -96,7 +91,7 @@ class Timeline:
             # includes and expansions extraction
             includes: List[dict] = twalc.Includes(**(response.includes))
             ref_tweets, rel_users, inc_media = includes.tweets, includes.users, includes.media
-               
+
             # reference table
             has_refs: bool = 'referenced_tweets' in self.query_params.tweet_fields
 
@@ -113,14 +108,14 @@ class Timeline:
 
                 # Original Tweets Parsing
                 tweets = [dict_func(twalc.Tweet(**tw)) for tw in tweets]
-                        
+
                 # Update response object
                 api_response.update_data(ident,
-                    new_links = links,
-                    new_refs = ref_tweets,
-                    new_users = rel_users,
-                    new_tweets = tweets,
-                    new_media = media)
+                                         new_links=links,
+                                         new_refs=ref_tweets,
+                                         new_users=rel_users,
+                                         new_tweets=tweets,
+                                         new_media=media)
 
                 num_collected += len(tweets)
                 print(f"\rCollected {num_collected} tweets for {self.ident_type} {ident}", end='')
@@ -167,7 +162,7 @@ class Timeline:
             if tweet['referenced_tweets'] is not None:
                 for ref in tweet['referenced_tweets']:
                     new_link = {
-                        'parent_id': tweet['id'], 
+                        'parent_id': tweet['id'],
                         'id': ref['id'],
                         'type': ref['type']
                     }

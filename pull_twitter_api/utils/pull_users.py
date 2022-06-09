@@ -13,20 +13,19 @@ from .pull_twitter_response import UserResponse
 import pandas as pd
 
 
-def pull_users(client: Client, 
+def pull_users(client: Client,
                query_params: LookupQueryParams,
                user_csv: str,
                api_response: UserResponse = None,
                output_dir: str = None,
                save_format: str = 'csv',
                full_save: bool = True,
+               auto_save: bool = False,
                handle_column: str = None,
                author_id_column: str = None,
                skip_column: str = "skip",
                use_skip: bool = False,
                tweets_per_query: int = 100):
-
-
     user_query_params = query_params.copy().reformat('user')
 
     # get search identifiers
@@ -48,14 +47,14 @@ def pull_users(client: Client,
 
     try:
         response = user.pull(
-            ident=search_ident, 
-            api_response = api_response,
+            ident=search_ident,
+            api_response=api_response,
             output_dir=output_dir,
-            save_format = save_format, 
-            full_save = full_save,
-            batch_size = tweets_per_query)
+            save_format=save_format,
+            full_save=full_save,
+            auto_save=auto_save,
+            batch_size=tweets_per_query)
         return response
     except Exception as e:
         print(f"Failed to pull user data. Error: ", e)
         return None
-

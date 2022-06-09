@@ -3,4 +3,4 @@ requests==2.26.0
 pandas==1.3.0
 pyyaml==5.4.1
 git+https://github.com/tweepy/tweepy.git@145d7cfb902ed7bd10143e201ea89af41ba7d628
-git+https://github.com/dhudsmith/twitter-alchemy.git@6c66af9a1934836661b6e4582aa4f8916d8d595f
+git+https://github.com/dhudsmith/twitter-alchemy.git@289feb067e090d17f3cbfc0d4149b2b289587ae8

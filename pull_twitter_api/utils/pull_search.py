@@ -12,18 +12,19 @@ from .pull_twitter_response import SearchResponse
 import pandas as pd
 from datetime import datetime
 
-def pull_search(client: Client, 
-    query_params: LookupQueryParams,
-    query: str,
-    api_response: SearchResponse = None,
-    output_dir: str = None,
-    save_format: str = 'csv',
-    full_save: bool = True,
-    max_response: int = 100,
-    start_time: str = None, 
-    end_time: str = None,
-    tweets_per_query: int = 100):
 
+def pull_search(client: Client,
+                query_params: LookupQueryParams,
+                query: str,
+                api_response: SearchResponse = None,
+                output_dir: str = None,
+                save_format: str = 'csv',
+                full_save: bool = True,
+                auto_save: bool = False,
+                max_response: int = 100,
+                start_time: str = None,
+                end_time: str = None,
+                tweets_per_query: int = 100):
     search_query_params = query_params.copy().reformat('tweet')
 
     # set up the search
@@ -37,15 +38,16 @@ def pull_search(client: Client,
 
     try:
         response = tweet_search.pull(
-            query, 
-            output_dir=output_dir, 
-            api_response = api_response,
-            start_time = start_time, 
-            end_time = end_time,
-            max_results = max_response, 
-            save_format = save_format,
-            full_save = full_save,
-            batch_size  = tweets_per_query)
+            query,
+            output_dir=output_dir,
+            api_response=api_response,
+            start_time=start_time,
+            end_time=end_time,
+            max_results=max_response,
+            save_format=save_format,
+            full_save=full_save,
+            auto_save=auto_save,
+            batch_size=tweets_per_query)
 
         return response
     except Exception as e:

@@ -12,18 +12,19 @@ from .pull_twitter_response import LookupResponse
 import pandas as pd
 from datetime import datetime
 
-def pull_lookup(client: Client, 
+
+def pull_lookup(client: Client,
                 query_params: LookupQueryParams,
                 id_csv: str,
                 api_response: LookupResponse = None,
                 output_dir: str = None,
                 save_format: str = 'csv',
                 full_save: bool = True,
+                auto_save: bool = False,
                 id_col: str = 'id',
                 skip_column: str = "skip",
                 use_skip: bool = False,
                 tweets_per_query: int = 100):
-
     lookup_query_params = query_params.copy().reformat('tweet')
 
     df_ids = pd.read_csv(id_csv)
@@ -37,12 +38,13 @@ def pull_lookup(client: Client,
 
     try:
         response = tweet_lookup.pull(
-            ids, 
+            ids,
             output_dir=output_dir,
-            api_response = api_response,
-            save_format = save_format,
-            full_save = full_save,
-            batch_size  = tweets_per_query)
+            api_response=api_response,
+            save_format=save_format,
+            full_save=full_save,
+            auto_save=auto_save,
+            batch_size=tweets_per_query)
 
         return response
     except Exception as e:

@@ -12,26 +12,24 @@ from .pull_twitter_response import TimelineResponse
 import pandas as pd
 
 
-def pull_timelines(client: Client, 
+def pull_timelines(client: Client,
                    query_params: LookupQueryParams,
                    user_csv: str,
                    api_response: TimelineResponse = None,
                    output_dir: str = None,
                    save_format: str = None,
                    full_save: bool = True,
+                   auto_save: bool = True,
                    handle_column: str = None,
                    author_id_column: str = None,
                    skip_column: str = "skip",
                    output_user: bool = False,
                    use_skip: bool = False,
                    tweets_per_query: int = 100):
-    
-
     tl_query_params = query_params.copy().reformat('tweet')
 
     # get search identifiers
     df_handles = pd.read_csv(user_csv)
-
 
     if use_skip:
         df_handles = df_handles.loc[df_handles[skip_column] != 1]
@@ -56,9 +54,10 @@ def pull_timelines(client: Client,
             response = timeline.pull(
                 ident=ident,
                 output_dir=output_dir,
-                api_response = api_response,
-                save_format = save_format,
-                full_save = full_save,
+                api_response=api_response,
+                save_format=save_format,
+                full_save=full_save,
+                auto_save=auto_save,
                 output_user=output_user,
                 ident_col=search_type,
                 tweets_per_query=tweets_per_query)
